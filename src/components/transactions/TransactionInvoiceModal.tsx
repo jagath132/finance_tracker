@@ -1,20 +1,21 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Coins, FileText, Calendar, Tag, Hash, CreditCard } from 'lucide-react';
-import { Transaction } from '../../types/database';
+import { X, Coins, FileText, Calendar, Tag, Hash, Image, Download } from 'lucide-react';
+import * as Icons from 'lucide-react';
+import { Transaction, Category } from '../../types/database';
 
 interface TransactionInvoiceModalProps {
   isOpen: boolean;
   onClose: () => void;
   transaction: Transaction | null;
-  categoryName: string;
+  category: Category | null;
 }
 
 const TransactionInvoiceModal: React.FC<TransactionInvoiceModalProps> = ({
   isOpen,
   onClose,
   transaction,
-  categoryName,
+  category,
 }) => {
   if (!transaction) return null;
 
@@ -60,7 +61,7 @@ const TransactionInvoiceModal: React.FC<TransactionInvoiceModalProps> = ({
               </div>
 
               {/* Transaction Details */}
-              <div className="space-y-4">
+              <div className="space-y-4 bg-light-secondary dark:bg-dark-secondary rounded-xl p-4">
                 <div className="flex items-center">
                   <FileText className="text-gray-500 mr-3" size={20} />
                   <div>
@@ -83,7 +84,10 @@ const TransactionInvoiceModal: React.FC<TransactionInvoiceModalProps> = ({
                   <Tag className="text-gray-500 mr-3" size={20} />
                   <div>
                     <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">Category</p>
-                    <p>{categoryName}</p>
+                    <div className="flex items-center">
+                      {category?.icon && React.createElement((Icons as any)[category.icon.charAt(0).toUpperCase() + category.icon.slice(1)] || Tag, { size: 16, className: "mr-2" })}
+                      <p>{category?.name || 'Uncategorized'}</p>
+                    </div>
                   </div>
                 </div>
 
@@ -101,6 +105,26 @@ const TransactionInvoiceModal: React.FC<TransactionInvoiceModalProps> = ({
                     <div>
                       <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">Notes</p>
                       <p>{transaction.notes}</p>
+                    </div>
+                  </div>
+                )}
+
+                {transaction.attachment_url && (
+                  <div className="flex items-start">
+                    {/\.(jpg|jpeg|png|gif|webp)$/i.test(transaction.attachment_url) ? (
+                      <Image className="text-gray-500 mr-3 mt-1" size={20} />
+                    ) : (
+                      <Download className="text-gray-500 mr-3 mt-1" size={20} />
+                    )}
+                    <div>
+                      <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">Attachment</p>
+                      {/\.(jpg|jpeg|png|gif|webp)$/i.test(transaction.attachment_url) ? (
+                        <img src={transaction.attachment_url} alt="Attachment" className="max-w-full h-auto rounded mt-2" />
+                      ) : (
+                        <a href={transaction.attachment_url} target="_blank" rel="noopener noreferrer" className="text-brand-green underline">
+                          Download File
+                        </a>
+                      )}
                     </div>
                   </div>
                 )}

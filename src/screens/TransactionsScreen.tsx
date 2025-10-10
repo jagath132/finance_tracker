@@ -13,11 +13,14 @@ const TransactionsScreen: React.FC = () => {
     const { transactions, loading: transactionsLoading, deleteTransaction } = useTransactions();
     const { categories, loading: categoriesLoading } = useCategories();
     const { openModal } = useModal();
-    const [invoiceTransaction, setInvoiceTransaction] = React.useState<any>(null);
-    const [invoiceCategory, setInvoiceCategory] = React.useState('');
+    const [invoiceTransactionId, setInvoiceTransactionId] = React.useState<string | null>(null);
 
     const getCategoryName = (categoryId: string) => {
         return categories.find(c => c.id === categoryId)?.name || 'Uncategorized';
+    };
+
+    const getCategory = (categoryId: string) => {
+        return categories.find(c => c.id === categoryId) || null;
     };
 
     const scrollToTop = () => {
@@ -70,10 +73,7 @@ const TransactionsScreen: React.FC = () => {
                                 transaction={tx}
                                 categoryName={getCategoryName(tx.category_id)}
                                 onDelete={() => deleteTransaction(tx.id)}
-                                onEdit={() => {
-                                    setInvoiceTransaction(tx);
-                                    setInvoiceCategory(getCategoryName(tx.category_id));
-                                }}
+                                onEdit={() => setInvoiceTransactionId(tx.id)}
                                 onClick={() => navigate(`/transactions/${tx.id}`)}
                             />
                         </motion.div>
@@ -97,11 +97,11 @@ const TransactionsScreen: React.FC = () => {
 
             {/* Invoice Modal */}
             <TransactionInvoiceModal
-                key={invoiceTransaction?.id}
-                isOpen={!!invoiceTransaction}
-                onClose={() => setInvoiceTransaction(null)}
-                transaction={invoiceTransaction}
-                categoryName={invoiceCategory}
+                key={invoiceTransactionId}
+                isOpen={!!invoiceTransactionId}
+                onClose={() => setInvoiceTransactionId(null)}
+                transaction={transactions.find(tx => tx.id === invoiceTransactionId) || null}
+                category={getCategory(transactions.find(tx => tx.id === invoiceTransactionId)?.category_id || '')}
             />
         </div>
     );
