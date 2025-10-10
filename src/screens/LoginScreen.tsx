@@ -48,7 +48,7 @@ const LoginScreen: React.FC = () => {
                     <p className="text-gray-400">Login to continue to Cointrail.</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="bg-dark-secondary p-8 rounded-2xl shadow-lg">
+                <form onSubmit={handleSubmit} className="bg-dark-secondary p-6 sm:p-8 rounded-2xl shadow-lg">
                     <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" icon={<Mail size={20} className="text-gray-500" />} required />
                     <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" icon={<Lock size={20} className="text-gray-500" />} required />
 

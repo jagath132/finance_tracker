@@ -53,7 +53,7 @@ const UpdatePasswordScreen: React.FC = () => {
                     <p className="text-gray-400 mt-2">Please enter your new password below.</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="bg-dark-secondary p-8 rounded-2xl shadow-lg">
+                <form onSubmit={handleSubmit} className="bg-dark-secondary p-6 sm:p-8 rounded-2xl shadow-lg">
                     <Input label="New Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" icon={<Lock size={20} className="text-gray-500" />} required />
                     <div className="mt-6">
                         <Button type="submit" isLoading={isLoading}>Update Password</Button>

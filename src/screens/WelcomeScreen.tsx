@@ -5,7 +5,7 @@ import { PiggyBank } from 'lucide-react';
 
 const WelcomeScreen: React.FC = () => {
   return (
-    <div className="min-h-screen bg-dark-primary flex flex-col justify-between p-8 font-sans overflow-hidden">
+    <div className="min-h-screen bg-dark-primary flex flex-col justify-between p-4 sm:p-8 font-sans overflow-hidden">
       {/* Logo and Tagline */}
       <div className="flex-grow flex flex-col items-center justify-center text-center">
         <motion.div

@@ -49,14 +49,14 @@ const ForgotPasswordScreen: React.FC = () => {
                 </div>
 
                 {isSubmitted ? (
-                    <div className="bg-dark-secondary p-8 rounded-2xl shadow-lg text-center">
+                    <div className="bg-dark-secondary p-6 sm:p-8 rounded-2xl shadow-lg text-center">
                         <p className="text-gray-300 mb-6">You can now close this window.</p>
                         <Link to="/login">
                             <Button>Back to Login</Button>
                         </Link>
                     </div>
                 ) : (
-                    <form onSubmit={handleSubmit} className="bg-dark-secondary p-8 rounded-2xl shadow-lg">
+                    <form onSubmit={handleSubmit} className="bg-dark-secondary p-6 sm:p-8 rounded-2xl shadow-lg">
                         <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" icon={<Mail size={20} className="text-gray-500" />} required />
                         <div className="mt-6">
                             <Button type="submit" isLoading={isLoading}>Send Reset Link</Button>
