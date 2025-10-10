@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, Mail, Lock, PiggyBank } from 'lucide-react';
+import { User, Mail, Lock, Coins } from 'lucide-react';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import PasswordStrength from '../components/ui/PasswordStrength';
@@ -66,7 +66,7 @@ const RegisterScreen: React.FC = () => {
             >
                 <div className="text-center mb-8">
                     <div className="bg-dark-secondary p-4 rounded-full inline-block mb-4">
-                        <PiggyBank className="text-brand-green" size={40} strokeWidth={1.5} />
+                        <Coins className="text-brand-green" size={40} strokeWidth={1.5} />
                     </div>
                     <h1 className="text-3xl font-bold text-white">Create Account</h1>
                     <p className="text-gray-400">Join Cointrail to manage your finances.</p>

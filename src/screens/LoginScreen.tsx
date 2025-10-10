@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, PiggyBank } from 'lucide-react';
+import { Mail, Lock, Coins } from 'lucide-react';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import { supabase } from '../supabase/client';
@@ -42,7 +42,7 @@ const LoginScreen: React.FC = () => {
             >
                 <div className="text-center mb-8">
                     <div className="bg-dark-secondary p-4 rounded-full inline-block mb-4">
-                        <PiggyBank className="text-brand-green" size={40} strokeWidth={1.5} />
+                        <Coins className="text-brand-green" size={40} strokeWidth={1.5} />
                     </div>
                     <h1 className="text-3xl font-bold text-white">Welcome Back</h1>
                     <p className="text-gray-400">Login to continue to Cointrail.</p>

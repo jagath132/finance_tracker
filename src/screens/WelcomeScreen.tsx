@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { PiggyBank } from 'lucide-react';
+import { Coins } from 'lucide-react';
 
 const WelcomeScreen: React.FC = () => {
   return (
@@ -14,7 +14,7 @@ const WelcomeScreen: React.FC = () => {
           transition={{ duration: 0.7, ease: "easeOut" }}
         >
           <div className="bg-dark-secondary p-6 rounded-full inline-block mb-6">
-            <PiggyBank className="text-brand-green" size={64} strokeWidth={1.5} />
+            <Coins className="text-brand-green" size={64} strokeWidth={1.5} />
           </div>
         </motion.div>
         

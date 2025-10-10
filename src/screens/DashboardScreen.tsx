@@ -22,15 +22,17 @@ type SummaryCardProps = {
 const SummaryCard = React.memo<SummaryCardProps>(({ title, amount, change, icon, colorClass, isBalance = false }) => (
   <motion.div
     className="p-4 rounded-2xl flex flex-col justify-between bg-light-secondary dark:bg-dark-secondary"
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
+    variants={{
+      hidden: { opacity: 0, y: 20 },
+      visible: { opacity: 1, y: 0 },
+    }}
     transition={{ duration: 0.5 }}
   >
     <div className="flex justify-between items-start">
       <span className="text-light-text-secondary dark:text-dark-text-secondary text-base">{title}</span>
       {icon && (
         <div className={`p-1.5 rounded-full bg-opacity-20 ${colorClass ? `bg-${colorClass}` : ''}`}>
-          {React.cloneElement(icon, { className: `text-${colorClass}`, size: 16 })}
+          {React.cloneElement(icon, { className: `text-${colorClass}`, size: 16 } as any)}
         </div>
       )}
     </div>
@@ -86,11 +88,24 @@ const DashboardScreen: React.FC = () => {
       </header>
 
       <main>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+        <motion.div
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.1,
+              },
+            },
+          }}
+        >
           <SummaryCard title="Current Balance" amount={summary.balance} isBalance={true} />
           <SummaryCard title="Total Income" amount={summary.income} change={summary.incomeChange} icon={<TrendingUp size={20} />} colorClass="brand-green" />
           <SummaryCard title="Total Expenses" amount={summary.expenses} change={summary.expenseChange} icon={<TrendingDown size={20} />} colorClass="brand-red" />
-        </div>
+        </motion.div>
 
 
         <div>

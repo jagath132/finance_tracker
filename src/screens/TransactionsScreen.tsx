@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Search, Loader2, ArrowLeft, ChevronUp } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import TransactionListItem from '../components/transactions/TransactionListItem';
@@ -37,18 +38,39 @@ const TransactionsScreen: React.FC = () => {
                     <Loader2 className="animate-spin text-brand-green" size={32} />
                 </div>
             ) : transactions.length > 0 ? (
-                <div>
+                <motion.div
+                    className="space-y-3"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                        hidden: { opacity: 0 },
+                        visible: {
+                            opacity: 1,
+                            transition: {
+                                staggerChildren: 0.05,
+                            },
+                        },
+                    }}
+                >
                     {transactions.map(tx => (
-                        <TransactionListItem
+                        <motion.div
                             key={tx.id}
-                            transaction={tx}
-                            categoryName={getCategoryName(tx.category_id)}
-                            onDelete={() => deleteTransaction(tx.id)}
-                            onEdit={() => navigate(`/transactions/${tx.id}`)}
-                            onClick={() => navigate(`/transactions/${tx.id}`)}
-                        />
+                            variants={{
+                                hidden: { opacity: 0, y: 10 },
+                                visible: { opacity: 1, y: 0 },
+                            }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <TransactionListItem
+                                transaction={tx}
+                                categoryName={getCategoryName(tx.category_id)}
+                                onDelete={() => deleteTransaction(tx.id)}
+                                onEdit={() => navigate(`/transactions/${tx.id}`)}
+                                onClick={() => navigate(`/transactions/${tx.id}`)}
+                            />
+                        </motion.div>
                     ))}
-                </div>
+                </motion.div>
             ) : (
                 <div className="text-center py-20">
                     <p className="text-light-text-secondary dark:text-dark-text-secondary mb-4">You have no transactions.</p>
