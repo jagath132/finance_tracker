@@ -97,6 +97,7 @@ const TransactionsScreen: React.FC = () => {
 
             {/* Invoice Modal */}
             <TransactionInvoiceModal
+                key={invoiceTransaction?.id}
                 isOpen={!!invoiceTransaction}
                 onClose={() => setInvoiceTransaction(null)}
                 transaction={invoiceTransaction}
