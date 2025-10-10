@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Search, Loader2, ArrowLeft, ChevronUp } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import TransactionListItem from '../components/transactions/TransactionListItem';
+import TransactionInvoiceModal from '../components/transactions/TransactionInvoiceModal';
 import { useTransactions } from '../hooks/useTransactions';
 import { useCategories } from '../hooks/useCategories';
 import { useModal } from '../context/ModalContext';
@@ -12,6 +13,8 @@ const TransactionsScreen: React.FC = () => {
     const { transactions, loading: transactionsLoading, deleteTransaction } = useTransactions();
     const { categories, loading: categoriesLoading } = useCategories();
     const { openModal } = useModal();
+    const [invoiceTransaction, setInvoiceTransaction] = React.useState<any>(null);
+    const [invoiceCategory, setInvoiceCategory] = React.useState('');
 
     const getCategoryName = (categoryId: string) => {
         return categories.find(c => c.id === categoryId)?.name || 'Uncategorized';
@@ -67,7 +70,10 @@ const TransactionsScreen: React.FC = () => {
                                 transaction={tx}
                                 categoryName={getCategoryName(tx.category_id)}
                                 onDelete={() => deleteTransaction(tx.id)}
-                                onEdit={() => openModal('editTransaction', tx)}
+                                onEdit={() => {
+                                    setInvoiceTransaction(tx);
+                                    setInvoiceCategory(getCategoryName(tx.category_id));
+                                }}
                                 onClick={() => navigate(`/transactions/${tx.id}`)}
                             />
                         </motion.div>
@@ -88,6 +94,14 @@ const TransactionsScreen: React.FC = () => {
             >
                 <ChevronUp size={24} />
             </button>
+
+            {/* Invoice Modal */}
+            <TransactionInvoiceModal
+                isOpen={!!invoiceTransaction}
+                onClose={() => setInvoiceTransaction(null)}
+                transaction={invoiceTransaction}
+                categoryName={invoiceCategory}
+            />
         </div>
     );
 };
