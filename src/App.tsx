@@ -5,7 +5,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import FloatingActionButton from './components/ui/FloatingActionButton';
 import { useModal } from './context/ModalContext';
 
-// Lazy load screens
+// Lazy load screens with preload for critical routes
 const WelcomeScreen = lazy(() => import('./screens/WelcomeScreen'));
 const LoginScreen = lazy(() => import('./screens/LoginScreen'));
 const RegisterScreen = lazy(() => import('./screens/RegisterScreen'));
@@ -22,6 +22,13 @@ const UpdatePasswordScreen = lazy(() => import('./screens/UpdatePasswordScreen')
 const SearchScreen = lazy(() => import('./screens/SearchScreen'));
 const TransactionsScreen = lazy(() => import('./screens/TransactionsScreen'));
 
+// Preload critical routes
+if (typeof window !== 'undefined') {
+  // Preload dashboard and transactions for authenticated users
+  import('./screens/DashboardScreen');
+  import('./screens/TransactionsScreen');
+}
+
 const AppContent: React.FC = () => {
     const location = useLocation();
     const { modalType, transaction, closeModal } = useModal();
@@ -32,7 +39,11 @@ const AppContent: React.FC = () => {
     return (
         <div className="relative bg-light-primary dark:bg-dark-primary text-light-text dark:text-dark-text min-h-screen">
             <main className={showNavBar ? 'pb-20' : ''}>
-                <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><div>Loading...</div></div>}>
+                <Suspense fallback={
+                    <div className="flex justify-center items-center min-h-screen">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green"></div>
+                    </div>
+                }>
                     <Routes>
                         <Route path="/" element={<WelcomeScreen />} />
                         <Route path="/login" element={<LoginScreen />} />

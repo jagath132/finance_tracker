@@ -1,12 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Search, Loader2, ArrowLeft, ChevronUp } from 'lucide-react';
+import { Search, Loader2, ArrowLeft, ChevronUp, Calendar } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import TransactionListItem from '../components/transactions/TransactionListItem';
 import TransactionInvoiceModal from '../components/transactions/TransactionInvoiceModal';
 import { useTransactions } from '../hooks/useTransactions';
 import { useCategories } from '../hooks/useCategories';
 import { useModal } from '../context/ModalContext';
+import { Transaction } from '../types/database';
 
 const TransactionsScreen: React.FC = () => {
     const navigate = useNavigate();
@@ -29,6 +30,22 @@ const TransactionsScreen: React.FC = () => {
 
     const loading = transactionsLoading || categoriesLoading;
 
+    // Group transactions by date - optimized with useMemo
+    const groupedTransactions = React.useMemo(() => {
+        const groups: Record<string, Transaction[]> = {};
+
+        // Single pass grouping for better performance
+        for (const tx of transactions) {
+            const date = new Date(tx.transaction_date).toDateString();
+            if (!groups[date]) {
+                groups[date] = [];
+            }
+            groups[date].push(tx);
+        }
+
+        return groups;
+    }, [transactions]);
+
     return (
         <div className="min-h-screen p-4 sm:p-6">
             <header className="flex justify-between items-center mb-6">
@@ -47,7 +64,7 @@ const TransactionsScreen: React.FC = () => {
                 </div>
             ) : transactions.length > 0 ? (
                 <motion.div
-                    className="space-y-3"
+                    className="space-y-4 sm:space-y-6"
                     initial="hidden"
                     animate="visible"
                     variants={{
@@ -56,26 +73,43 @@ const TransactionsScreen: React.FC = () => {
                             opacity: 1,
                             transition: {
                                 staggerChildren: 0.05,
+                                delayChildren: 0.1,
                             },
                         },
                     }}
                 >
-                    {transactions.map(tx => (
+                    {Object.entries(groupedTransactions).map(([date, txs]) => (
                         <motion.div
-                            key={tx.id}
+                            key={date}
                             variants={{
                                 hidden: { opacity: 0, y: 10 },
                                 visible: { opacity: 1, y: 0 },
                             }}
-                            transition={{ duration: 0.3 }}
+                            transition={{ duration: 0.2, ease: "easeOut" }}
                         >
-                            <TransactionListItem
-                                transaction={tx}
-                                categoryName={getCategoryName(tx.category_id)}
-                                onDelete={() => deleteTransaction(tx.id)}
-                                onEdit={() => setInvoiceTransactionId(tx.id)}
-                                onClick={() => navigate(`/transactions/${tx.id}`)}
-                            />
+                            <div className="flex items-center mb-2 sm:mb-3">
+                                <Calendar size={16} className="text-light-text-secondary dark:text-dark-text-secondary mr-2" />
+                                <h3 className="text-base sm:text-lg font-semibold text-light-text dark:text-dark-text">
+                                    {new Date(date).toLocaleDateString('en-IN', {
+                                        weekday: 'short',
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric'
+                                    })}
+                                </h3>
+                            </div>
+                            <div className="space-y-2">
+                                {txs.map(tx => (
+                                    <TransactionListItem
+                                        key={tx.id}
+                                        transaction={tx}
+                                        category={getCategory(tx.category_id)}
+                                        onDelete={() => deleteTransaction(tx.id)}
+                                        onEdit={() => setInvoiceTransactionId(tx.id)}
+                                        onClick={() => navigate(`/transactions/${tx.id}`)}
+                                    />
+                                ))}
+                            </div>
                         </motion.div>
                     ))}
                 </motion.div>
@@ -102,6 +136,16 @@ const TransactionsScreen: React.FC = () => {
                 onClose={() => setInvoiceTransactionId(null)}
                 transaction={transactions.find(tx => tx.id === invoiceTransactionId) || null}
                 category={getCategory(transactions.find(tx => tx.id === invoiceTransactionId)?.category_id || '')}
+                onEdit={() => {
+                    const tx = transactions.find(tx => tx.id === invoiceTransactionId);
+                    if (tx) openModal('editTransaction', tx);
+                    setInvoiceTransactionId(null);
+                }}
+                onDelete={() => {
+                    const tx = transactions.find(tx => tx.id === invoiceTransactionId);
+                    if (tx) deleteTransaction(tx.id);
+                    setInvoiceTransactionId(null);
+                }}
             />
         </div>
     );

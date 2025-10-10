@@ -118,18 +118,39 @@ const DashboardScreen: React.FC = () => {
               <Loader2 className="animate-spin text-brand-green" size={32} />
             </div>
           ) : transactions.length > 0 ? (
-            <div className="space-y-3">
+            <motion.div
+              className="space-y-2 sm:space-y-3"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  transition: {
+                    staggerChildren: 0.05,
+                  },
+                },
+              }}
+            >
               {transactions.slice(0, 5).map(tx => (
-                <TransactionListItem
+                <motion.div
                   key={tx.id}
-                  transaction={tx}
-                  categoryName={getCategoryName(tx.category_id)}
-                  onDelete={() => deleteTransaction(tx.id)}
-                  onEdit={() => openModal('editTransaction', tx)}
-                  onClick={() => navigate(`/transactions/${tx.id}`)}
-                />
+                  variants={{
+                    hidden: { opacity: 0, y: 10 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <TransactionListItem
+                    transaction={tx}
+                    category={categories.find(c => c.id === tx.category_id) || null}
+                    onDelete={() => deleteTransaction(tx.id)}
+                    onEdit={() => openModal('editTransaction', tx)}
+                    onClick={() => navigate(`/transactions/${tx.id}`)}
+                  />
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           ) : (
             <div className="text-center py-10 bg-light-secondary dark:bg-dark-secondary rounded-xl">
               <p className="text-light-text-secondary dark:text-dark-text-secondary">No transactions yet.</p>

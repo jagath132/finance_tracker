@@ -11,11 +11,22 @@ export const useTransactions = () => {
     const [loading, setLoading] = useState(true);
 
     const summaryMemo = useMemo(() => {
-        const income = transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
-        const expenses = transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0);
+        let income = 0;
+        let expenses = 0;
+
+        // Single pass through transactions for better performance
+        for (const transaction of transactions) {
+            if (transaction.type === 'income') {
+                income += transaction.amount;
+            } else {
+                expenses += transaction.amount;
+            }
+        }
+
         return { income, expenses, balance: income - expenses, incomeChange: 0, expenseChange: 0 };
     }, [transactions]);
 
+    // Remove unnecessary useEffect - set summary directly in useMemo
     useEffect(() => {
         setSummary(summaryMemo);
     }, [summaryMemo]);
