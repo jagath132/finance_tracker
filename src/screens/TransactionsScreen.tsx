@@ -5,11 +5,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import TransactionListItem from '../components/transactions/TransactionListItem';
 import { useTransactions } from '../hooks/useTransactions';
 import { useCategories } from '../hooks/useCategories';
+import { useModal } from '../context/ModalContext';
 
 const TransactionsScreen: React.FC = () => {
     const navigate = useNavigate();
     const { transactions, loading: transactionsLoading, deleteTransaction } = useTransactions();
     const { categories, loading: categoriesLoading } = useCategories();
+    const { openModal } = useModal();
 
     const getCategoryName = (categoryId: string) => {
         return categories.find(c => c.id === categoryId)?.name || 'Uncategorized';
@@ -65,7 +67,7 @@ const TransactionsScreen: React.FC = () => {
                                 transaction={tx}
                                 categoryName={getCategoryName(tx.category_id)}
                                 onDelete={() => deleteTransaction(tx.id)}
-                                onEdit={() => navigate(`/transactions/${tx.id}`)}
+                                onEdit={() => openModal('editTransaction', tx)}
                                 onClick={() => navigate(`/transactions/${tx.id}`)}
                             />
                         </motion.div>
