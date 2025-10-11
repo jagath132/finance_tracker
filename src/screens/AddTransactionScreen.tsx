@@ -188,9 +188,9 @@ const AddTransactionScreen: React.FC<AddTransactionScreenProps> = ({ isOpen, onC
                                             type="date"
                                             value={transactionDate}
                                             onChange={(e) => setTransactionDate(e.target.value)}
-                                            className="w-full pl-10 pr-4 py-3 bg-light-secondary dark:bg-dark-secondary rounded-lg border border-light-border dark:border-dark-border focus:border-brand-green focus:outline-none"
+                                            className="w-full pl-10 pr-4 py-3 bg-light-secondary dark:bg-dark-secondary rounded-lg border border-light-border dark:border-dark-border focus:border-brand-green focus:outline-none text-light-text dark:text-dark-text"
                                             required
-                                            style={{ colorScheme: 'dark' }}
+                                            style={{ colorScheme: 'light' }}
                                         />
                                     </div>
                                 </div>
