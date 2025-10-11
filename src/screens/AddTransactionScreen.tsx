@@ -17,7 +17,6 @@ interface AddTransactionScreenProps {
 const AddTransactionScreen: React.FC<AddTransactionScreenProps> = ({ isOpen, onClose, transaction }) => {
     const { addTransaction, updateTransaction } = useTransactions();
     const { categories, loading: categoriesLoading } = useCategories();
-    const formRef = useRef<HTMLFormElement>(null);
 
     const [type, setType] = useState<'income' | 'expense'>('expense');
     const [amount, setAmount] = useState('');
@@ -108,7 +107,7 @@ const AddTransactionScreen: React.FC<AddTransactionScreenProps> = ({ isOpen, onC
                             </button>
                         </div>
 
-                        <form ref={formRef} onSubmit={handleSubmit} className="flex-grow flex flex-col p-4 sm:p-6 overflow-y-auto">
+                        <form onSubmit={handleSubmit} className="flex-grow flex flex-col p-4 sm:p-6 overflow-y-auto">
                             {/* Transaction Type Toggle */}
                             <div className="mb-6 flex justify-center">
                                 <ToggleSwitch option1="Expense" option2="Income" selected={type} setSelected={setType} />
@@ -210,11 +209,12 @@ const AddTransactionScreen: React.FC<AddTransactionScreenProps> = ({ isOpen, onC
                                     </div>
                                 </div>
                             </div>
-                        </form>
 
-                        <div className="flex-shrink-0 p-4 sm:p-6 border-t border-light-border dark:border-dark-border">
-                            <Button onClick={() => formRef.current?.requestSubmit()} isLoading={isSubmitting}>{isEditing ? 'Update Transaction' : 'Save Transaction'}</Button>
-                        </div>
+                            {/* Save Button */}
+                            <div className="mt-6 pt-4 border-t border-light-border dark:border-dark-border">
+                                <Button type="submit" isLoading={isSubmitting}>{isEditing ? 'Update Transaction' : 'Save Transaction'}</Button>
+                            </div>
+                        </form>
                     </motion.div>
                 </div>
             )}
