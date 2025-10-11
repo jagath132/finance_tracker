@@ -31,7 +31,7 @@ const ForgotPasswordScreen: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-dark-primary flex flex-col justify-center items-center p-4 sm:p-6">
+        <div className="min-h-screen bg-light-primary dark:bg-dark-primary flex flex-col justify-center items-center p-4 sm:p-6">
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -39,9 +39,9 @@ const ForgotPasswordScreen: React.FC = () => {
                 className="w-full max-w-md"
             >
                 <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-white">Forgot Password</h1>
-                    <p className="text-gray-400 mt-2">
-                        {isSubmitted 
+                    <h1 className="text-3xl font-bold text-light-text dark:text-dark-text">Forgot Password</h1>
+                    <p className="text-light-text-secondary dark:text-dark-text-secondary mt-2">
+                        {isSubmitted
                             ? "If an account exists, you'll receive an email."
                             : "Enter your email to receive a password reset link."
                         }
@@ -49,14 +49,14 @@ const ForgotPasswordScreen: React.FC = () => {
                 </div>
 
                 {isSubmitted ? (
-                    <div className="bg-dark-secondary p-6 sm:p-8 rounded-2xl shadow-lg text-center">
-                        <p className="text-gray-300 mb-6">You can now close this window.</p>
+                    <div className="bg-light-secondary dark:bg-dark-secondary p-6 sm:p-8 rounded-2xl shadow-lg text-center">
+                        <p className="text-light-text dark:text-dark-text mb-6">You can now close this window.</p>
                         <Link to="/login">
                             <Button>Back to Login</Button>
                         </Link>
                     </div>
                 ) : (
-                    <form onSubmit={handleSubmit} className="bg-dark-secondary p-6 sm:p-8 rounded-2xl shadow-lg">
+                    <form onSubmit={handleSubmit} className="bg-light-secondary dark:bg-dark-secondary p-6 sm:p-8 rounded-2xl shadow-lg">
                         <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" icon={<Mail size={20} className="text-gray-500" />} required />
                         <div className="mt-6">
                             <Button type="submit" isLoading={isLoading}>Send Reset Link</Button>
@@ -64,7 +64,7 @@ const ForgotPasswordScreen: React.FC = () => {
                     </form>
                 )}
 
-                <p className="text-center mt-8 text-gray-400">
+                <p className="text-center mt-8 text-light-text-secondary dark:text-dark-text-secondary">
                     <Link to="/login" className="font-semibold text-brand-green hover:underline flex items-center justify-center">
                         <ArrowLeft size={16} className="mr-1" />
                         Back to Login
