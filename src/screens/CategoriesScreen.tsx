@@ -152,8 +152,8 @@ const CategoriesScreen: React.FC = () => {
             {/* Popup Modal for Edit/Delete */}
             {selectedCategory && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                    <div className="bg-white dark:bg-dark-secondary rounded-xl p-6 w-80 shadow-lg">
-                        <h3 className="font-bold mb-4 truncate">{selectedCategory.name}</h3>
+                    <div className="bg-white dark:bg-dark-secondary rounded-xl p-6 w-96 shadow-lg">
+                        <h3 className="font-bold mb-4 break-words">{selectedCategory.name}</h3>
                         <div className="flex gap-4">
                             <button
                                 className="flex-1 bg-blue-500 text-white rounded-lg py-2"
