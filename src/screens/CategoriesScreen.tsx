@@ -169,7 +169,7 @@ const CategoriesScreen: React.FC = () => {
                             </button>
                         </div>
                         <button
-                            className="mt-4 w-full text-red-500 hover:text-red-600 font-medium"
+                            className="mt-4 w-full bg-gray-200 dark:bg-dark-primary text-red-500 hover:text-red-600 font-medium py-2 rounded-lg"
                             onClick={() => setSelectedCategory(null)}
                         >
                             Cancel
