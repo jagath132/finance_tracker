@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Plus, Loader2, ShoppingBag, Gift, Film, Briefcase } from 'lucide-react';
+import { Plus, Loader2, ShoppingBag, Gift, Film, Briefcase, Search, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useCategories } from '../hooks/useCategories';
 import Button from '../components/ui/Button';
 import { Category } from '../types/database';
@@ -55,12 +56,14 @@ const AddCategoryForm: React.FC<{ onAdd: (name: string, type: 'income' | 'expens
 const CategoriesScreen: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'expense' | 'income'>('expense');
     const [showAddForm, setShowAddForm] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
     const { categories, loading, addCategory, deleteCategory, updateCategory } = useCategories();
     const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
     const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null);
     const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
-    const filteredCategories = categories.filter(c => c.type === activeTab);
+    const tabFilteredCategories = categories.filter(c => c.type === activeTab);
+    const searchedCategories = tabFilteredCategories.filter(cat => cat.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const handleAddCategory = (name: string, type: 'income' | 'expense') => {
         addCategory({ name, type });
@@ -105,7 +108,39 @@ const CategoriesScreen: React.FC = () => {
                 </button>
             </header>
 
-            {showAddForm && <AddCategoryForm onAdd={handleAddCategory} onCancel={() => setShowAddForm(false)} />}
+            <div className="mb-4">
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
+                    <input
+                        type="text"
+                        placeholder="Search categories..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-10 pr-10 py-3 bg-light-secondary dark:bg-dark-secondary rounded-lg border border-light-border dark:border-dark-border focus:border-brand-green focus:outline-none"
+                    />
+                    {searchTerm && (
+                        <button
+                            onClick={() => setSearchTerm('')}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        >
+                            <X size={18} />
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            <AnimatePresence>
+                {showAddForm && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <AddCategoryForm onAdd={handleAddCategory} onCancel={() => setShowAddForm(false)} />
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             <div className="flex border-b border-light-border dark:border-dark-border mb-6 mt-4">
                 <button
@@ -128,18 +163,34 @@ const CategoriesScreen: React.FC = () => {
                 <div className="flex justify-center py-20">
                     <Loader2 className="animate-spin text-brand-green" size={32} />
                 </div>
-            ) : filteredCategories.length > 0 ? (
-                <div>
-                    {filteredCategories.map(cat => (
-                        <div
-                            key={cat.id}
-                            className="flex items-center justify-between p-4 rounded-lg mb-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-dark-primary overflow-hidden"
-                            onClick={() => handleCategoryClick(cat)}
-                        >
-                            <span className="font-bold break-words truncate max-w-[180px] sm:max-w-xs">{cat.name}</span>
-                            {/* Optionally show icon here */}
-                        </div>
-                    ))}
+            ) : searchedCategories.length > 0 ? (
+                <AnimatePresence>
+                    <div>
+                        {searchedCategories.map(cat => (
+                            <motion.div
+                                key={cat.id}
+                                layout
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.2 }}
+                                className="bg-white dark:bg-dark-secondary shadow-md hover:shadow-lg rounded-xl p-4 mb-4 cursor-pointer transform hover:scale-105 transition-all duration-200 flex items-center justify-between"
+                                onClick={() => handleCategoryClick(cat)}
+                            >
+                                <div className="flex items-center gap-3">
+                                    {iconMap[cat.icon as keyof typeof iconMap] || iconMap.Default}
+                                    <span className="font-bold break-words truncate max-w-[150px] sm:max-w-xs">{cat.name}</span>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </AnimatePresence>
+            ) : searchTerm ? (
+                <div className="text-center py-20">
+                    <p className="text-light-text-secondary dark:text-dark-text-secondary mb-4">
+                        No results found for "{searchTerm}"
+                    </p>
+                    <button onClick={() => setSearchTerm('')} className="text-brand-green hover:underline">Clear search</button>
                 </div>
             ) : (
                 <div className="text-center py-20">
@@ -151,9 +202,17 @@ const CategoriesScreen: React.FC = () => {
 
             {/* Popup Modal for Edit/Delete */}
             {selectedCategory && (
-                <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                    <div className="bg-white dark:bg-dark-secondary rounded-xl p-6 w-96 shadow-lg">
-                        <h3 className="font-bold mb-4 break-words">{selectedCategory.name}</h3>
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.9, opacity: 0 }}
+                        className="bg-white dark:bg-dark-secondary rounded-xl p-6 w-96 shadow-lg"
+                    >
+                        <div className="flex items-center gap-3 mb-4">
+                            {iconMap[selectedCategory.icon as keyof typeof iconMap] || iconMap.Default}
+                            <h3 className="font-bold break-words">{selectedCategory.name}</h3>
+                        </div>
                         <div className="flex gap-4">
                             <button
                                 className="flex-1 bg-blue-500 text-white rounded-lg py-2"
@@ -174,7 +233,7 @@ const CategoriesScreen: React.FC = () => {
                         >
                             Cancel
                         </button>
-                    </div>
+                    </motion.div>
                 </div>
             )}
 
