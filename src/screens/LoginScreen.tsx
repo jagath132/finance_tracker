@@ -2,6 +2,22 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Coins } from 'lucide-react';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.3
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+};
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import { supabase } from '../supabase/client';
@@ -33,7 +49,7 @@ const LoginScreen: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-light-primary dark:bg-dark-primary flex flex-col justify-center items-center p-4 sm:p-6">
+        <div className="h-screen bg-light-primary dark:bg-dark-primary flex flex-col justify-center items-center p-4 sm:p-6 overflow-hidden">
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -48,16 +64,22 @@ const LoginScreen: React.FC = () => {
                     <p className="text-light-text-secondary dark:text-dark-text-secondary">Login to continue to Cointrail.</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="bg-light-secondary dark:bg-dark-secondary p-6 sm:p-8 rounded-2xl shadow-lg">
-                    <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" icon={<Mail size={20} className="text-gray-500" />} required />
-                    <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" icon={<Lock size={20} className="text-gray-500" />} required />
+                <motion.form onSubmit={handleSubmit} className="bg-light-secondary dark:bg-dark-secondary p-6 sm:p-8 rounded-2xl shadow-lg" variants={containerVariants} initial="hidden" animate="visible">
+                    <motion.div variants={itemVariants}>
+                        <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" icon={<Mail size={20} className="text-gray-500" />} required />
+                    </motion.div>
+                    <motion.div variants={itemVariants}>
+                        <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" icon={<Lock size={20} className="text-gray-500" />} required />
+                    </motion.div>
 
-                    <div className="text-right mt-6 mb-6">
+                    <motion.div className="text-right mt-6 mb-6" variants={itemVariants}>
                         <Link to="/forgot-password" className="text-sm text-brand-green hover:underline">Forgot Password?</Link>
-                    </div>
+                    </motion.div>
 
-                    <Button type="submit" isLoading={isLoading}>Login</Button>
-                </form>
+                    <motion.div variants={itemVariants}>
+                        <Button type="submit" isLoading={isLoading}>Login</Button>
+                    </motion.div>
+                </motion.form>
 
                 <p className="text-center mt-8 text-light-text-secondary dark:text-dark-text-secondary">
                     Don't have an account?{' '}
