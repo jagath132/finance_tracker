@@ -29,7 +29,7 @@ const TransactionListItem: React.FC<TransactionListItemProps> = React.memo(({ tr
 
     return (
         <>
-            <div className="group bg-light-secondary dark:bg-dark-secondary p-3 sm:p-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-light-primary/10 dark:border-dark-primary/10">
+            <div className="group bg-light-secondary dark:bg-dark-secondary p-3 sm:p-4 rounded-2xl shadow-md hover:shadow-xl transition-all duration-200 border border-light-primary/10 dark:border-dark-primary/10">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center flex-1 cursor-pointer min-w-0" onClick={onClick}>
                         <div className="flex items-center mr-3 sm:mr-4 flex-shrink-0">

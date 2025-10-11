@@ -57,11 +57,30 @@ const LoginScreen: React.FC = () => {
                 className="w-full max-w-md"
             >
                 <div className="text-center mb-8">
-                    <div className="bg-light-secondary dark:bg-dark-secondary p-4 rounded-full inline-block mb-4">
+                    <motion.div
+                        className="bg-light-secondary dark:bg-dark-secondary p-4 rounded-full inline-block mb-4"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: 'spring', stiffness: 300, delay: 0.2 }}
+                    >
                         <Coins className="text-brand-green" size={40} strokeWidth={1.5} />
-                    </div>
-                    <h1 className="text-3xl font-bold text-light-text dark:text-dark-text">Welcome Back</h1>
-                    <p className="text-light-text-secondary dark:text-dark-text-secondary">Login to continue to Cointrail.</p>
+                    </motion.div>
+                    <motion.h1
+                        className="text-3xl font-bold text-light-text dark:text-dark-text"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                    >
+                        Welcome Back
+                    </motion.h1>
+                    <motion.p
+                        className="text-light-text-secondary dark:text-dark-text-secondary"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6 }}
+                    >
+                        Login to continue to Cointrail.
+                    </motion.p>
                 </div>
 
                 <motion.form onSubmit={handleSubmit} className="bg-light-secondary dark:bg-dark-secondary p-6 sm:p-8 rounded-2xl shadow-lg" variants={containerVariants} initial="hidden" animate="visible">

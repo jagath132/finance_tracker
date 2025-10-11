@@ -33,7 +33,7 @@ const AppContent: React.FC = () => {
     const location = useLocation();
     const { modalType, transaction, closeModal } = useModal();
 
-    const showNavBar = ['/dashboard', '/categories', '/settings'].includes(location.pathname);
+    const showNavBar = ['/dashboard', '/categories', '/settings', '/transactions'].includes(location.pathname);
     const showFab = ['/dashboard'].includes(location.pathname);
 
     return (

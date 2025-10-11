@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -17,7 +18,11 @@ const Input: React.FC<InputProps> = ({ label, type = 'text', icon, ...props }) =
   return (
     <div className="relative mb-4">
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-2">{label}</label>
-      <div className="relative">
+      <motion.div
+        className="relative"
+        whileFocus={{ scale: 1.02 }}
+        transition={{ duration: 0.2 }}
+      >
         {icon && <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">{icon}</div>}
         <input
           type={isPassword ? (isPasswordVisible ? 'text' : 'password') : type}
@@ -33,7 +38,7 @@ const Input: React.FC<InputProps> = ({ label, type = 'text', icon, ...props }) =
             {isPasswordVisible ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 };
