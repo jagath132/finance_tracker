@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUpRight, ArrowDownRight, Settings, TrendingUp, TrendingDown, Loader2, Search, LogOut } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Settings, TrendingUp, TrendingDown, Loader2, Search, LogOut, DollarSign } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -21,7 +21,7 @@ type SummaryCardProps = {
 
 const SummaryCard = React.memo<SummaryCardProps>(({ title, amount, change, icon, colorClass, isBalance = false }) => (
   <motion.div
-    className="p-4 rounded-2xl flex flex-col justify-between bg-light-secondary dark:bg-dark-secondary"
+    className="p-3 sm:p-4 rounded-2xl flex flex-col justify-between bg-light-secondary dark:bg-dark-secondary"
     variants={{
       hidden: { opacity: 0, y: 20 },
       visible: { opacity: 1, y: 0 },
@@ -29,7 +29,7 @@ const SummaryCard = React.memo<SummaryCardProps>(({ title, amount, change, icon,
     transition={{ duration: 0.5 }}
   >
     <div className="flex justify-between items-start">
-      <span className="text-light-text-secondary dark:text-dark-text-secondary text-base">{title}</span>
+      <span className="text-light-text-secondary dark:text-dark-text-secondary text-sm sm:text-base">{title}</span>
       {icon && (
         <div className={`p-1.5 rounded-full bg-opacity-20 ${colorClass ? `bg-${colorClass}` : ''}`}>
           {React.cloneElement(icon, { className: `text-${colorClass}`, size: 16 } as any)}
@@ -89,7 +89,7 @@ const DashboardScreen: React.FC = () => {
 
       <main>
         <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6"
           initial="hidden"
           animate="visible"
           variants={{
@@ -102,7 +102,7 @@ const DashboardScreen: React.FC = () => {
             },
           }}
         >
-          <SummaryCard title="Current Balance" amount={summary.balance} isBalance={true} />
+          <SummaryCard title="Current Balance" amount={summary.balance} isBalance={true} icon={<DollarSign size={20} />} colorClass="brand-green" />
           <SummaryCard title="Total Income" amount={summary.income} change={summary.incomeChange} icon={<TrendingUp size={20} />} colorClass="brand-green" />
           <SummaryCard title="Total Expenses" amount={summary.expenses} change={summary.expenseChange} icon={<TrendingDown size={20} />} colorClass="brand-red" />
         </motion.div>

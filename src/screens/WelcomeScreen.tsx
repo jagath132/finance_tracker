@@ -5,7 +5,7 @@ import { Coins } from 'lucide-react';
 
 const WelcomeScreen: React.FC = () => {
   return (
-    <div className="min-h-screen bg-dark-primary flex flex-col justify-between p-4 sm:p-8 font-sans overflow-hidden">
+    <div className="min-h-screen bg-light-primary dark:bg-dark-primary flex flex-col justify-between p-4 sm:p-8 font-sans overflow-hidden">
       {/* Logo and Tagline */}
       <div className="flex-grow flex flex-col items-center justify-center text-center">
         <motion.div
@@ -13,13 +13,13 @@ const WelcomeScreen: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
         >
-          <div className="bg-dark-secondary p-6 rounded-full inline-block mb-6">
+          <div className="bg-light-secondary dark:bg-dark-secondary p-6 rounded-full inline-block mb-6">
             <Coins className="text-brand-green" size={64} strokeWidth={1.5} />
           </div>
         </motion.div>
-        
+
         <motion.h1
-          className="text-4xl md:text-5xl font-bold text-white tracking-tight"
+          className="text-4xl md:text-5xl font-bold text-light-text dark:text-dark-text tracking-tight"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
@@ -28,7 +28,7 @@ const WelcomeScreen: React.FC = () => {
         </motion.h1>
 
         <motion.p
-          className="text-lg md:text-xl text-gray-400 mt-3"
+          className="text-lg md:text-xl text-light-text-secondary dark:text-dark-text-secondary mt-3"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.4, ease: "easeOut" }}
@@ -49,7 +49,7 @@ const WelcomeScreen: React.FC = () => {
             Get Started
           </button>
         </Link>
-        <p className="text-center mt-6 text-gray-400">
+        <p className="text-center mt-6 text-light-text-secondary dark:text-dark-text-secondary">
           Already have an account?{' '}
           <Link to="/login" className="font-semibold text-brand-green hover:underline">
             Login

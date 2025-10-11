@@ -56,12 +56,34 @@ export const useTransactions = () => {
 
     const addTransaction = async (transaction: Omit<Transaction, 'id' | 'created_at' | 'user_id'>) => {
         if (!user) return;
-        const { error } = await supabase.from('transactions').insert({ ...transaction, user_id: user.id });
-        if (error) {
-            toast.error(error.message);
-        } else {
-            toast.success('Transaction added!');
-            fetchTransactions(); // Refetch
+
+        // Optimistically add to local state for instant UI update
+        const tempId = `temp-${Date.now()}`;
+        const optimisticTransaction: Transaction = {
+            ...transaction,
+            id: tempId,
+            user_id: user.id,
+            created_at: new Date().toISOString(),
+        };
+
+        setTransactions(prev => [optimisticTransaction, ...prev]);
+
+        try {
+            const { data, error } = await supabase.from('transactions').insert({ ...transaction, user_id: user.id }).select().single();
+
+            if (error) {
+                // Revert optimistic update on error
+                setTransactions(prev => prev.filter(t => t.id !== tempId));
+                toast.error(error.message);
+            } else {
+                // Replace temp transaction with real data
+                setTransactions(prev => prev.map(t => t.id === tempId ? data : t));
+                toast.success('Transaction added!');
+            }
+        } catch (error) {
+            // Revert optimistic update on error
+            setTransactions(prev => prev.filter(t => t.id !== tempId));
+            toast.error('Failed to add transaction');
         }
     };
 

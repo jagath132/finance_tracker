@@ -57,7 +57,7 @@ const RegisterScreen: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-dark-primary flex flex-col justify-center items-center p-4 sm:p-6">
+        <div className="min-h-screen bg-light-primary dark:bg-dark-primary flex flex-col justify-center items-center p-4 sm:p-6">
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -65,14 +65,14 @@ const RegisterScreen: React.FC = () => {
                 className="w-full max-w-md"
             >
                 <div className="text-center mb-8">
-                    <div className="bg-dark-secondary p-4 rounded-full inline-block mb-4">
+                    <div className="bg-light-secondary dark:bg-dark-secondary p-4 rounded-full inline-block mb-4">
                         <Coins className="text-brand-green" size={40} strokeWidth={1.5} />
                     </div>
-                    <h1 className="text-3xl font-bold text-white">Create Account</h1>
-                    <p className="text-gray-400">Join Cointrail to manage your finances.</p>
+                    <h1 className="text-3xl font-bold text-light-text dark:text-dark-text">Create Account</h1>
+                    <p className="text-light-text-secondary dark:text-dark-text-secondary">Join Cointrail to manage your finances.</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="bg-dark-secondary p-6 sm:p-8 rounded-2xl shadow-lg">
+                <form onSubmit={handleSubmit} className="bg-light-secondary dark:bg-dark-secondary p-6 sm:p-8 rounded-2xl shadow-lg">
                     <Input label="Full Name" type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="John Doe" icon={<User size={20} className="text-gray-500" />} required />
                     <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" icon={<Mail size={20} className="text-gray-500" />} required />
                     <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" icon={<Lock size={20} className="text-gray-500" />} required />
@@ -86,7 +86,7 @@ const RegisterScreen: React.FC = () => {
                     </div>
                 </form>
 
-                <p className="text-center mt-8 text-gray-400">
+                <p className="text-center mt-8 text-light-text-secondary dark:text-dark-text-secondary">
                     Already have an account?{' '}
                     <Link to="/login" className="font-semibold text-brand-green hover:underline">Login</Link>
                 </p>

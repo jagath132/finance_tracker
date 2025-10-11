@@ -46,7 +46,7 @@ const AddCategoryForm: React.FC<{ onAdd: (name: string, type: 'income' | 'expens
             </div>
             <div className="flex gap-2">
                 <Button type="submit">Add</Button>
-                <Button type="button" onClick={onCancel} className="bg-gray-500 hover:bg-gray-600">Cancel</Button>
+                <Button type="button" onClick={onCancel} className="bg-red-500 hover:bg-red-600 text-white">Cancel</Button>
             </div>
         </form>
     );
@@ -169,7 +169,7 @@ const CategoriesScreen: React.FC = () => {
                             </button>
                         </div>
                         <button
-                            className="mt-4 w-full text-gray-500"
+                            className="mt-4 w-full text-red-500 hover:text-red-600 font-medium"
                             onClick={() => setSelectedCategory(null)}
                         >
                             Cancel

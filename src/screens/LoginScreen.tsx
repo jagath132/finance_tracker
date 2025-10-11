@@ -33,7 +33,7 @@ const LoginScreen: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-dark-primary flex flex-col justify-center items-center p-4 sm:p-6">
+        <div className="min-h-screen bg-light-primary dark:bg-dark-primary flex flex-col justify-center items-center p-4 sm:p-6">
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -41,14 +41,14 @@ const LoginScreen: React.FC = () => {
                 className="w-full max-w-md"
             >
                 <div className="text-center mb-8">
-                    <div className="bg-dark-secondary p-4 rounded-full inline-block mb-4">
+                    <div className="bg-light-secondary dark:bg-dark-secondary p-4 rounded-full inline-block mb-4">
                         <Coins className="text-brand-green" size={40} strokeWidth={1.5} />
                     </div>
-                    <h1 className="text-3xl font-bold text-white">Welcome Back</h1>
-                    <p className="text-gray-400">Login to continue to Cointrail.</p>
+                    <h1 className="text-3xl font-bold text-light-text dark:text-dark-text">Welcome Back</h1>
+                    <p className="text-light-text-secondary dark:text-dark-text-secondary">Login to continue to Cointrail.</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="bg-dark-secondary p-6 sm:p-8 rounded-2xl shadow-lg">
+                <form onSubmit={handleSubmit} className="bg-light-secondary dark:bg-dark-secondary p-6 sm:p-8 rounded-2xl shadow-lg">
                     <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" icon={<Mail size={20} className="text-gray-500" />} required />
                     <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" icon={<Lock size={20} className="text-gray-500" />} required />
 
@@ -59,7 +59,7 @@ const LoginScreen: React.FC = () => {
                     <Button type="submit" isLoading={isLoading}>Login</Button>
                 </form>
 
-                <p className="text-center mt-8 text-gray-400">
+                <p className="text-center mt-8 text-light-text-secondary dark:text-dark-text-secondary">
                     Don't have an account?{' '}
                     <Link to="/register" className="font-semibold text-brand-green hover:underline">Sign Up</Link>
                 </p>
