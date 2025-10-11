@@ -81,7 +81,7 @@ const DashboardScreen: React.FC = () => {
           <Link to="/settings" className="p-2 rounded-full bg-light-secondary dark:bg-dark-secondary">
             <Settings size={24} className="text-light-text-secondary dark:text-dark-text-secondary" />
           </Link>
-          <button onClick={logout} className="p-2 rounded-full bg-light-secondary dark:bg-dark-secondary hover:bg-light-primary dark:hover:bg-dark-primary">
+          <button onClick={async () => { await logout(); navigate('/login'); }} className="p-2 rounded-full bg-light-secondary dark:bg-dark-secondary hover:bg-light-primary dark:hover:bg-dark-primary">
             <LogOut size={20} className="text-light-text-secondary dark:text-dark-text-secondary" />
           </button>
         </div>

@@ -45,7 +45,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const logout = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+      // Clear local storage to ensure logout works across all browsers
+      localStorage.removeItem('supabase.auth.token');
+      localStorage.removeItem('supabase.auth.refreshToken');
+      // Also clear any other supabase related keys
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('supabase.')) {
+          localStorage.removeItem(key);
+        }
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force clear even if signOut fails
+      localStorage.clear();
+    }
   };
 
   const value = useMemo(() => ({
