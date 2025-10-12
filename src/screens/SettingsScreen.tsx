@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChevronRight, Upload, Download, LogOut, User, Sun, Moon, Monitor, Trash2, AlertTriangle } from 'lucide-react';
+import { ChevronRight, Upload, Download, LogOut, User, Sun, Moon, Monitor, Trash2, AlertTriangle, BarChart3, Receipt, Tag, Search, Database } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../supabase/client';
 import toast from 'react-hot-toast';
@@ -45,6 +46,15 @@ const SettingsScreen: React.FC = () => {
         dark: <Moon size={20} />,
         system: <Monitor size={20} />,
     };
+
+    const features = [
+        { title: 'Dashboard', description: 'Overview of your finances with charts and recent transactions.', color: 'bg-blue-100 dark:bg-blue-900', icon: BarChart3 },
+        { title: 'Transactions', description: 'View, add, edit, and manage your financial transactions.', color: 'bg-green-100 dark:bg-green-900', icon: Receipt },
+        { title: 'Categories', description: 'Organize your transactions into custom categories.', color: 'bg-yellow-100 dark:bg-yellow-900', icon: Tag },
+        { title: 'Search', description: 'Quickly find specific transactions.', color: 'bg-purple-100 dark:bg-purple-900', icon: Search },
+        { title: 'Import/Export', description: 'Import transactions from CSV or export your data.', color: 'bg-pink-100 dark:bg-pink-900', icon: Database },
+        { title: 'Profile', description: 'Manage your account information and password.', color: 'bg-indigo-100 dark:bg-indigo-900', icon: User },
+    ];
 
     return (
         <>
@@ -97,6 +107,24 @@ const SettingsScreen: React.FC = () => {
                                 <div className="flex items-center"><Download size={20} className="mr-4" /><span>Export Data</span></div>
                                 <ChevronRight size={20} className="text-gray-500" />
                             </Link>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h2 className="text-xs font-semibold text-light-text-secondary dark:text-dark-text-secondary uppercase tracking-wider mb-3">Features</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {features.map((feature, index) => (
+                                <motion.div
+                                    key={feature.title}
+                                    className={`${feature.color} rounded-lg p-4 shadow-md border border-gray-200 dark:border-gray-700 hover:shadow-lg hover:scale-105 transition-all duration-300`}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                                >
+                                    <h3 className="font-semibold flex items-center"><feature.icon size={24} className="mr-2" />{feature.title}</h3>
+                                    <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">{feature.description}</p>
+                                </motion.div>
+                            ))}
                         </div>
                     </div>
 
