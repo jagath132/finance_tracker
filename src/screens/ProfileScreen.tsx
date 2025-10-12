@@ -98,7 +98,7 @@ const ProfileScreen: React.FC = () => {
                 </div>
                 <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
                 {selectedFile && (
-                    <Button onClick={handleUpload} className="mb-4">Upload Picture</Button>
+                    <Button onClick={handleUpload} className="mb-4 w-auto py-2 px-3 text-sm">Upload Picture</Button>
                 )}
             </div>
 
