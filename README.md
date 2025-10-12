@@ -1,8 +1,8 @@
-# Finance Tracker
+Finance Tracker
 
 A modern, responsive web application for tracking personal finances, built with React, TypeScript, Vite, and Supabase.
 
-## Features
+Features
 
 - User authentication (login/register)
 - Dashboard with financial overview
@@ -13,13 +13,13 @@ A modern, responsive web application for tracking personal finances, built with 
 - Responsive design with dark/light theme
 - Secure data storage with Supabase
 
-## Prerequisites
+Prerequisites
 
 - Node.js (version 18 or higher)
 - npm or yarn
 - A Supabase account
 
-## Installation
+Installation
 
 1. Clone the repository:
    ```bash
@@ -32,7 +32,7 @@ A modern, responsive web application for tracking personal finances, built with 
    npm install
    ```
 
-## Setup
+Setup
 
 1. Create a new Supabase project at [supabase.com](https://supabase.com).
 
@@ -49,7 +49,7 @@ A modern, responsive web application for tracking personal finances, built with 
    - Run `supabase start` to start local Supabase.
    - Apply migrations: `supabase db push`
 
-## Running the Application
+Running the Application
 
 1. Start the development server:
    ```bash
@@ -58,32 +58,13 @@ A modern, responsive web application for tracking personal finances, built with 
 
 2. Open your browser and navigate to `http://localhost:5173` (or the port shown in the terminal).
 
-## Building for Production
-
-1. Build the application:
-   ```bash
-   npm run build
-   ```
-
-2. Preview the build:
-   ```bash
-   npm run preview
-   ```
-
-## Deployment
+Deployment
 
 This app is configured for deployment on Netlify. The `netlify.toml` file contains the build settings.
 
 For other platforms, ensure the environment variables are set in your deployment environment.
 
-## Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run lint` - Run ESLint
-- `npm run preview` - Preview production build
-
-## Technologies Used
+Technologies Used
 
 - **Frontend**: React 19, TypeScript, Vite
 - **Styling**: Tailwind CSS, Framer Motion
@@ -91,15 +72,3 @@ For other platforms, ensure the environment variables are set in your deployment
 - **Icons**: Lucide React
 - **Charts**: (if any, add here)
 - **Other**: Axios for HTTP requests, PapaParse for CSV handling
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License.
