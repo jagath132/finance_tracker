@@ -70,7 +70,11 @@ const SettingsScreen: React.FC = () => {
                             <Link to="/profile" className="flex items-center justify-between p-4 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
                                 <div className="flex items-center">
                                     <div className="p-3 bg-gray-300 dark:bg-gray-700 rounded-full mr-4">
-                                        <User size={20} />
+                                        {user?.user_metadata?.avatar_url ? (
+                                            <img src={user.user_metadata.avatar_url} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
+                                        ) : (
+                                            <User size={20} />
+                                        )}
                                     </div>
                                     <div>
                                         <p className="font-semibold">{user?.user_metadata?.full_name}</p>
