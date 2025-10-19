@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../supabase/client';
 import { useAuth } from '../context/AuthContext';
-import { Category, Database } from '../types/database';
+import { supabase } from '../lib/supabase';
+import type { Database } from '../types/database';
 import toast from 'react-hot-toast';
+
+type Category = Database['public']['Tables']['categories']['Row'];
 
 export const useCategories = () => {
     const { user } = useAuth();
@@ -12,53 +14,105 @@ export const useCategories = () => {
     const fetchCategories = useCallback(async () => {
         if (!user) return;
         setLoading(true);
-        const { data, error } = await supabase
-            .from('categories')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('name', { ascending: true });
 
-        if (error) {
-            toast.error(error.message);
-        } else {
+        try {
+            const { data, error } = await supabase
+                .from('categories')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching categories:', error);
+                toast.error('Failed to load categories');
+                return;
+            }
+
             setCategories(data || []);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+            toast.error('Failed to load categories');
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     }, [user]);
 
     useEffect(() => {
         fetchCategories();
     }, [fetchCategories]);
 
-    const addCategory = async (category: Omit<Database['public']['Tables']['categories']['Insert'], 'user_id'>) => {
+    const addCategory = async (category: Omit<Category, 'id' | 'user_id' | 'created_at'>) => {
         if (!user) return;
-        const { error } = await supabase.from('categories').insert({ ...category, user_id: user.id });
-        if (error) {
-            toast.error(error.message);
-        } else {
+
+        try {
+            const { data, error } = await supabase
+                .from('categories')
+                .insert({
+                    ...category,
+                    user_id: user.id,
+                })
+                .select()
+                .single();
+
+            if (error) {
+                console.error('Error adding category:', error);
+                toast.error('Failed to add category');
+                return;
+            }
+
+            setCategories(prev => [data, ...prev]);
             toast.success('Category added!');
-            fetchCategories(); // Refetch
+        } catch (error) {
+            console.error('Error adding category:', error);
+            toast.error('Failed to add category');
         }
     };
 
     const updateCategory = async (id: string, payload: { name: string, type: 'income' | 'expense' }) => {
-        const { error } = await supabase.from('categories').update(payload).eq('id', id);
-        if (error) {
-            toast.error(error.message);
-        } else {
+        try {
+            const { data, error } = await supabase
+                .from('categories')
+                .update(payload)
+                .eq('id', id)
+                .eq('user_id', user?.id)
+                .select()
+                .single();
+
+            if (error) {
+                console.error('Error updating category:', error);
+                toast.error('Failed to update category');
+                return;
+            }
+
+            setCategories(prev => prev.map(cat =>
+                cat.id === id ? data : cat
+            ));
             toast.success('Category updated!');
-            fetchCategories(); // Refetch
+        } catch (error) {
+            console.error('Error updating category:', error);
+            toast.error('Failed to update category');
         }
     };
 
     const deleteCategory = async (id: string) => {
-        // You might want to check if transactions use this category first
-        const { error } = await supabase.from('categories').delete().eq('id', id);
-        if (error) {
-            toast.error(error.message);
-        } else {
+        try {
+            const { error } = await supabase
+                .from('categories')
+                .delete()
+                .eq('id', id)
+                .eq('user_id', user?.id);
+
+            if (error) {
+                console.error('Error deleting category:', error);
+                toast.error('Failed to delete category');
+                return;
+            }
+
+            setCategories(prev => prev.filter(cat => cat.id !== id));
             toast.success('Category deleted!');
-            fetchCategories(); // Refetch
+        } catch (error) {
+            console.error('Error deleting category:', error);
+            toast.error('Failed to delete category');
         }
     };
 

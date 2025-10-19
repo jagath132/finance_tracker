@@ -1,6 +1,6 @@
 Finance Tracker
 
-A modern, responsive web application for tracking personal finances, built with React, TypeScript, Vite, and Supabase.
+A modern, responsive web application for tracking personal finances, built with React, TypeScript, and Vite.
 
 Features
 
@@ -9,15 +9,14 @@ Features
 - Transaction management (add, edit, delete, search)
 - Category management
 - Data import/export (CSV)
-- Profile management with avatar upload
+- Profile management
 - Responsive design with dark/light theme
-- Secure data storage with Supabase
+- Local data storage (ready for backend integration)
 
 Prerequisites
 
 - Node.js (version 18 or higher)
 - npm or yarn
-- A Supabase account
 
 Installation
 
@@ -34,29 +33,27 @@ Installation
 
 Setup
 
-1. Create a new Supabase project at [supabase.com](https://supabase.com).
-
-2. Go to your project's API settings and copy the Project URL and anon public key.
-
-3. Create a `.env` file in the root directory and add your Supabase credentials:
-   ```
-   VITE_SUPABASE_URL=your_supabase_project_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+1. Clone the repository and install dependencies:
+   ```bash
+   git clone <repository-url>
+   cd finance_tracker
+   npm install
    ```
 
-4. Run the database migrations (optional, if setting up locally):
-   - Install Supabase CLI if not already installed.
-   - Run `supabase start` to start local Supabase.
-   - Apply migrations: `supabase db push`
-
-Running the Application
-
-1. Start the development server:
+2. Start the development server:
    ```bash
    npm run dev
    ```
 
-2. Open your browser and navigate to `http://localhost:5173` (or the port shown in the terminal).
+3. Open your browser and navigate to `http://localhost:5173`
+
+Running the Application
+
+The application is now running with mock data and local state management. All features work without a backend:
+
+- Authentication is simulated (always succeeds)
+- Data is stored in memory (resets on page refresh)
+- All CRUD operations work with local state
 
 Deployment
 
@@ -68,7 +65,7 @@ Technologies Used
 
 - **Frontend**: React 19, TypeScript, Vite
 - **Styling**: Tailwind CSS, Framer Motion
-- **Backend**: Supabase (PostgreSQL, Auth, Storage)
+- **State Management**: React Context + Hooks
 - **Icons**: Lucide React
-- **Charts**: (if any, add here)
-- **Other**: Axios for HTTP requests, PapaParse for CSV handling
+- **Data Processing**: PapaParse for CSV handling
+- **Backend Ready**: Architecture prepared for any backend integration

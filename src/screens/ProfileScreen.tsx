@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../supabase/client';
 import toast from 'react-hot-toast';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
@@ -18,8 +17,8 @@ const ProfileScreen: React.FC = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
 
     useEffect(() => {
-        if (user?.user_metadata?.full_name) {
-            setFullName(user.user_metadata.full_name);
+        if (user?.full_name) {
+            setFullName(user.full_name);
         }
     }, [user]);
 
@@ -44,16 +43,8 @@ const ProfileScreen: React.FC = () => {
         setIsLoading(true);
 
         try {
-            // Update profile data
-            const { error: profileError } = await supabase.auth.updateUser({
-                data: { full_name: fullName }
-            });
-
-            if (profileError) {
-                toast.error('Error updating profile: ' + profileError.message);
-                setIsLoading(false);
-                return;
-            }
+            // Mock profile update - replace with your preferred auth solution
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
 
             // Handle password change if new password is provided
             if (newPassword) {
@@ -70,21 +61,14 @@ const ProfileScreen: React.FC = () => {
                     return;
                 }
 
-                const { error: passwordUpdateError } = await supabase.auth.updateUser({
-                    password: newPassword
-                });
-
-                if (passwordUpdateError) {
-                    toast.error('Error updating password: ' + passwordUpdateError.message);
-                    setIsLoading(false);
-                    return;
-                }
-
-                // Clear password fields
-                setCurrentPassword('');
-                setNewPassword('');
-                setConfirmPassword('');
+                // Mock password update
+                await new Promise(resolve => setTimeout(resolve, 500));
             }
+
+            // Clear password fields
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
 
             toast.success('Profile updated successfully!');
         } catch {
@@ -93,8 +77,6 @@ const ProfileScreen: React.FC = () => {
 
         setIsLoading(false);
     };
-
-
 
     return (
         <div className="min-h-screen p-4 sm:p-6">

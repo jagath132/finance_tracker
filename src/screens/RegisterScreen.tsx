@@ -21,11 +21,12 @@ const itemVariants = {
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import PasswordStrength from '../components/ui/PasswordStrength';
-import { supabase } from '../supabase/client';
 import toast from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
 
 const RegisterScreen: React.FC = () => {
     const navigate = useNavigate();
+    const { register } = useAuth();
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -50,26 +51,27 @@ const RegisterScreen: React.FC = () => {
             return;
         }
         setIsLoading(true);
-        
-        const { error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    full_name: fullName,
-                },
-                emailRedirectTo: `${window.location.origin}/dashboard`
+
+        try {
+            const result = await register(fullName, email, password);
+            if (result.success) {
+                if (result.requiresConfirmation) {
+                    // Email confirmation is required
+                    toast.success('Registration successful! Please check your email to confirm your account.');
+                    navigate('/email-confirmation');
+                } else {
+                    // User is immediately signed in
+                    toast.success('Registration successful! Welcome to Cointrail.');
+                    navigate('/dashboard');
+                }
+            } else {
+                toast.error(result.error || 'Registration failed. Please try again.');
             }
-        });
+        } catch (error) {
+            toast.error('Registration failed. Please try again.');
+        }
 
         setIsLoading(false);
-
-        if (error) {
-            toast.error(error.message);
-        } else {
-            toast.success('Registration successful! Please check your email to verify your account.');
-            navigate('/login');
-        }
     };
 
     return (

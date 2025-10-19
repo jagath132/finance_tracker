@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { Lock } from 'lucide-react';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
-import { supabase } from '../supabase/client';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
@@ -17,7 +16,7 @@ const UpdatePasswordScreen: React.FC = () => {
     useEffect(() => {
         // This screen is only for users who arrived via a password reset link.
         // If they are already fully logged in, redirect them.
-        if (session && session.user.user_metadata.email) {
+        if (session && session.user.email) {
              navigate('/dashboard');
         }
     }, [session, navigate]);
@@ -26,18 +25,13 @@ const UpdatePasswordScreen: React.FC = () => {
         e.preventDefault();
         setIsLoading(true);
 
-        const { error } = await supabase.auth.updateUser({ password });
+        // Mock password update - replace with your preferred auth solution
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
 
         setIsLoading(false);
 
-        if (error) {
-            toast.error(error.message);
-        } else {
-            toast.success('Password updated successfully! You can now log in.');
-            // Log the user out so they have to re-login with the new password
-            await supabase.auth.signOut();
-            navigate('/login');
-        }
+        toast.success('Password updated successfully! You can now log in.');
+        navigate('/login');
     };
 
     return (

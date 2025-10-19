@@ -20,11 +20,12 @@ const itemVariants = {
 };
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
-import { supabase } from '../supabase/client';
 import toast from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
 
 const LoginScreen: React.FC = () => {
     const navigate = useNavigate();
+    const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -32,20 +33,20 @@ const LoginScreen: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        
-        const { error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
+
+        try {
+            const success = await login(email, password);
+            if (success) {
+                toast.success('Logged in successfully!');
+                navigate('/dashboard');
+            } else {
+                toast.error('Login failed. Please try again.');
+            }
+        } catch (error) {
+            toast.error('Login failed. Please try again.');
+        }
 
         setIsLoading(false);
-
-        if (error) {
-            toast.error(error.message);
-        } else {
-            toast.success('Logged in successfully!');
-            navigate('/dashboard');
-        }
     };
 
     return (

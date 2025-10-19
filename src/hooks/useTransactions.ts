@@ -1,111 +1,167 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { supabase } from '../supabase/client';
-import { useAuth } from '../context/AuthContext';
-import { Transaction } from '../types/database';
-import toast from 'react-hot-toast';
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
+import type { Database } from "../types/database";
+import toast from "react-hot-toast";
+
+type Transaction = Database["public"]["Tables"]["transactions"]["Row"];
 
 export const useTransactions = () => {
-    const { user } = useAuth();
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
-    const [summary, setSummary] = useState({ income: 0, expenses: 0, balance: 0, incomeChange: 0, expenseChange: 0 });
-    const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [summary, setSummary] = useState({
+    income: 0,
+    expenses: 0,
+    balance: 0,
+    incomeChange: 0,
+    expenseChange: 0,
+  });
+  const [loading, setLoading] = useState(true);
 
-    const summaryMemo = useMemo(() => {
-        let income = 0;
-        let expenses = 0;
+  const summaryMemo = useMemo(() => {
+    let income = 0;
+    let expenses = 0;
 
-        // Single pass through transactions for better performance
-        for (const transaction of transactions) {
-            if (transaction.type === 'income') {
-                income += transaction.amount;
-            } else {
-                expenses += transaction.amount;
-            }
-        }
+    // Single pass through transactions for better performance
+    for (const transaction of transactions) {
+      if (transaction.type === "income") {
+        income += transaction.amount;
+      } else {
+        expenses += transaction.amount;
+      }
+    }
 
-        return { income, expenses, balance: income - expenses, incomeChange: 0, expenseChange: 0 };
-    }, [transactions]);
-
-    // Remove unnecessary useEffect - set summary directly in useMemo
-    useEffect(() => {
-        setSummary(summaryMemo);
-    }, [summaryMemo]);
-
-    const fetchTransactions = useCallback(async () => {
-        if (!user) return;
-        setLoading(true);
-        
-        const { data, error } = await supabase
-            .from('transactions')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('transaction_date', { ascending: false });
-
-        if (error) {
-            toast.error(error.message);
-            setTransactions([]);
-        } else {
-            setTransactions(data || []);
-        }
-        setLoading(false);
-    }, [user]);
-
-    useEffect(() => {
-        fetchTransactions();
-    }, [fetchTransactions]);
-
-    const addTransaction = async (transaction: Omit<Transaction, 'id' | 'created_at' | 'user_id'>) => {
-        if (!user) return;
-
-        // Optimistically add to local state for instant UI update
-        const tempId = `temp-${Date.now()}`;
-        const optimisticTransaction: Transaction = {
-            ...transaction,
-            id: tempId,
-            user_id: user.id,
-            created_at: new Date().toISOString(),
-        };
-
-        setTransactions(prev => [optimisticTransaction, ...prev]);
-
-        try {
-            const { data, error } = await supabase.from('transactions').insert({ ...transaction, user_id: user.id }).select().single();
-
-            if (error) {
-                // Revert optimistic update on error
-                setTransactions(prev => prev.filter(t => t.id !== tempId));
-                toast.error(error.message);
-            } else {
-                // Replace temp transaction with real data
-                setTransactions(prev => prev.map(t => t.id === tempId ? data : t));
-                toast.success('Transaction added!');
-            }
-        } catch (error) {
-            // Revert optimistic update on error
-            setTransactions(prev => prev.filter(t => t.id !== tempId));
-            toast.error('Failed to add transaction');
-        }
+    return {
+      income,
+      expenses,
+      balance: income - expenses,
+      incomeChange: 0,
+      expenseChange: 0,
     };
+  }, [transactions]);
 
-    const updateTransaction = async (id: string, updates: Partial<Omit<Transaction, 'id' | 'created_at' | 'user_id'>>) => {
-        const { error } = await supabase.from('transactions').update(updates).eq('id', id);
-        if (error) {
-            toast.error(error.message);
-        } else {
-            toast.success('Transaction updated!');
-            fetchTransactions(); // Refetch
-        }
-    };
+  // Remove unnecessary useEffect - set summary directly in useMemo
+  useEffect(() => {
+    setSummary(summaryMemo);
+  }, [summaryMemo]);
 
-    const deleteTransaction = async (id: string) => {
-        const { error } = await supabase.from('transactions').delete().eq('id', id);
-        if (error) {
-            toast.error(error.message);
-        } else {
-            toast.success('Transaction deleted!');
-            fetchTransactions(); // Refetch
-        }
-    };
+  const fetchTransactions = useCallback(async () => {
+    if (!user) return;
+    setLoading(true);
 
-    return { transactions, summary, loading, addTransaction, updateTransaction, deleteTransaction, refetch: fetchTransactions };
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching transactions:', error);
+        toast.error('Failed to load transactions');
+        return;
+      }
+
+      setTransactions(data || []);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      toast.error('Failed to load transactions');
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
+
+  const addTransaction = async (
+    transaction: Omit<Transaction, "id" | "created_at" | "user_id">
+  ) => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .insert({
+          ...transaction,
+          user_id: user.id,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error adding transaction:', error);
+        toast.error('Failed to add transaction');
+        return;
+      }
+
+      setTransactions((prev) => [data, ...prev]);
+      toast.success("Transaction added!");
+    } catch (error) {
+      console.error('Error adding transaction:', error);
+      toast.error('Failed to add transaction');
+    }
+  };
+
+  const updateTransaction = async (
+    id: string,
+    updates: Partial<Omit<Transaction, "id" | "created_at" | "user_id">>
+  ) => {
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .update(updates)
+        .eq('id', id)
+        .eq('user_id', user?.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating transaction:', error);
+        toast.error('Failed to update transaction');
+        return;
+      }
+
+      setTransactions((prev) =>
+        prev.map((t) => (t.id === id ? data : t))
+      );
+      toast.success("Transaction updated!");
+    } catch (error) {
+      console.error('Error updating transaction:', error);
+      toast.error('Failed to update transaction');
+    }
+  };
+
+  const deleteTransaction = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('transactions')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user?.id);
+
+      if (error) {
+        console.error('Error deleting transaction:', error);
+        toast.error('Failed to delete transaction');
+        return;
+      }
+
+      setTransactions((prev) => prev.filter((t) => t.id !== id));
+      toast.success("Transaction deleted!");
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+      toast.error('Failed to delete transaction');
+    }
+  };
+
+  return {
+    transactions,
+    summary,
+    loading,
+    addTransaction,
+    updateTransaction,
+    deleteTransaction,
+    refetch: fetchTransactions,
+  };
 };

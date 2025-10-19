@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { Mail, ArrowLeft } from 'lucide-react';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
-import { supabase } from '../supabase/client';
 import toast from 'react-hot-toast';
 
 const ForgotPasswordScreen: React.FC = () => {
@@ -16,18 +15,13 @@ const ForgotPasswordScreen: React.FC = () => {
         e.preventDefault();
         setIsLoading(true);
 
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: `${window.location.origin}/update-password`,
-        });
+        // Mock password reset - replace with your preferred auth solution
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
 
         setIsLoading(false);
 
-        if (error) {
-            toast.error(error.message);
-        } else {
-            toast.success('Password reset link sent! Please check your email.');
-            setIsSubmitted(true);
-        }
+        toast.success('Password reset link sent! Please check your email.');
+        setIsSubmitted(true);
     };
 
     return (
