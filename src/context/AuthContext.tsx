@@ -78,21 +78,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state change:', event, { session: !!session, user: session?.user?.email });
+
       if (event === "SIGNED_IN" && session) {
+        console.log('User signed in, navigating to dashboard');
         setUser(session.user);
         setSession(session);
         setNeedsEmailConfirmation(false);
         setEmailConfirmed(true);
       } else if (event === "SIGNED_OUT") {
+        console.log('User signed out');
         setUser(null);
         setSession(null);
         setNeedsEmailConfirmation(false);
         setEmailConfirmed(false);
       } else if (event === "USER_UPDATED" && session) {
+        console.log('User updated');
         setUser(session.user);
         setSession(session);
         setNeedsEmailConfirmation(false);
         setEmailConfirmed(true);
+      } else if (event === "TOKEN_REFRESHED" && session) {
+        console.log('Token refreshed');
+        setUser(session.user);
+        setSession(session);
       }
       setLoading(false);
     });

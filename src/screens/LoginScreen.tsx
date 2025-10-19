@@ -35,16 +35,20 @@ const LoginScreen: React.FC = () => {
         setIsLoading(true);
 
         try {
+            console.log('LoginScreen: Starting login process');
             const result = await login(email, password);
+            console.log('LoginScreen: Login result:', result);
             if (result.success) {
+                console.log('LoginScreen: Login successful, showing toast');
                 toast.success('Logged in successfully!');
                 // Navigation will be handled by the auth state change listener
                 // The user will be redirected to dashboard when the session is set
             } else {
+                console.log('LoginScreen: Login failed:', result.error);
                 toast.error(result.error || 'Login failed. Please try again.');
             }
         } catch (error) {
-            console.error('Login error:', error);
+            console.error('LoginScreen: Unexpected error:', error);
             toast.error('Network error. Please check your connection and try again.');
         }
 

@@ -55,6 +55,8 @@ const AppContent: React.FC = () => {
   const navigate = useNavigate();
   const { modalType, transaction, closeModal } = useModal();
 
+  console.log('AppContent: Current location:', location.pathname);
+
   // Handle email confirmation links
   useEffect(() => {
     const handleEmailConfirmation = async () => {
