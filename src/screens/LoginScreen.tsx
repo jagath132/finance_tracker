@@ -35,12 +35,12 @@ const LoginScreen: React.FC = () => {
         setIsLoading(true);
 
         try {
-            const success = await login(email, password);
-            if (success) {
+            const result = await login(email, password);
+            if (result.success) {
                 toast.success('Logged in successfully!');
                 navigate('/dashboard');
             } else {
-                toast.error('Login failed. Please try again.');
+                toast.error(result.error || 'Login failed. Please try again.');
             }
         } catch (error) {
             toast.error('Login failed. Please try again.');
