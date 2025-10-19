@@ -38,12 +38,14 @@ const LoginScreen: React.FC = () => {
             const result = await login(email, password);
             if (result.success) {
                 toast.success('Logged in successfully!');
-                navigate('/dashboard');
+                // Navigation will be handled by the auth state change listener
+                // The user will be redirected to dashboard when the session is set
             } else {
                 toast.error(result.error || 'Login failed. Please try again.');
             }
         } catch (error) {
-            toast.error('Login failed. Please try again.');
+            console.error('Login error:', error);
+            toast.error('Network error. Please check your connection and try again.');
         }
 
         setIsLoading(false);

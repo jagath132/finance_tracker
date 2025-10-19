@@ -108,18 +108,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
       if (error) {
+        console.error('Login error:', error);
         return { success: false, error: error.message };
       }
 
       if (data.user) {
-        setUser(data.user);
-        setSession(data.session);
+        // The auth state change listener will handle setting user/session
         return { success: true };
       }
 
       return { success: false, error: "Login failed" };
     } catch (error) {
-      return { success: false, error: "An unexpected error occurred" };
+      console.error('Login fetch error:', error);
+      return { success: false, error: "Network error. Please check your connection and try again." };
     }
   };
 
