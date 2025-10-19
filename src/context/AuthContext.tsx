@@ -102,10 +102,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const login = async (email: string, password: string) => {
     try {
+      console.log('Attempting login for:', email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+
+      console.log('Login response:', { data: !!data, error });
 
       if (error) {
         console.error('Login error:', error);
@@ -113,6 +116,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       if (data.user) {
+        console.log('Login successful for user:', data.user.email);
         // The auth state change listener will handle setting user/session
         return { success: true };
       }
@@ -130,6 +134,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     password: string
   ) => {
     try {
+      console.log('Attempting registration for:', email);
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -140,11 +145,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         },
       });
 
+      console.log('Registration response:', { data: !!data, error, session: !!data?.session });
+
       if (error) {
+        console.error('Registration error:', error);
         return { success: false, error: error.message };
       }
 
       if (data.user) {
+        console.log('Registration successful for user:', data.user.email);
         // Check if email confirmation is required
         if (!data.session) {
           // Email confirmation is required
@@ -152,8 +161,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           return { success: true, requiresConfirmation: true };
         } else {
           // User is immediately signed in (confirmation disabled)
-          setUser(data.user);
-          setSession(data.session);
+          // The auth state change listener will handle setting user/session
           setNeedsEmailConfirmation(false);
           return { success: true };
         }
@@ -161,7 +169,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       return { success: false, error: "Registration failed" };
     } catch (error) {
-      return { success: false, error: "An unexpected error occurred" };
+      console.error('Registration fetch error:', error);
+      return { success: false, error: "Network error. Please check your connection and try again." };
     }
   };
 
