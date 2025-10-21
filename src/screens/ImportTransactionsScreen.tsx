@@ -1,3 +1,4 @@
+import { supabase } from '../lib/supabase';
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -129,9 +130,6 @@ const ImportTransactionsScreen: React.FC = () => {
         const toastId = toast.loading('Starting import...');
 
         try {
-            // Mock import process - replace with your preferred data import solution
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
             // Parse the entire CSV file
             const fullData: any[] = await new Promise((resolve) => {
                 Papa.parse(file, { header: true, skipEmptyLines: true, complete: (results) => resolve(results.data) });
@@ -142,30 +140,97 @@ const ImportTransactionsScreen: React.FC = () => {
                 return acc;
             }, {} as Record<MappedField, string>);
 
-            // Simulate processing transactions
+            // Get existing categories
+            await refetchCategories(); // Ensure we have latest categories
+            const { data: existingCategories } = await supabase
+                .from('categories')
+                .select('*')
+                .eq('user_id', user.id);
+
+            const categories = existingCategories || [];
             let processedCount = 0;
             let skippedCount = 0;
+            let categoryCount = 0;
 
+            // First pass: create missing categories
+            const categoryNames = new Set(categories.map(c => c.name.toLowerCase()));
+            const categoriesToCreate: string[] = [];
+
+            for (const row of fullData) {
+                const categoryName = row[reverseMap.category]?.trim();
+                if (categoryName && !categoryNames.has(categoryName.toLowerCase())) {
+                    categoryNames.add(categoryName.toLowerCase());
+                    categoriesToCreate.push(categoryName);
+                }
+            }
+
+            // Create missing categories
+            for (const categoryName of categoriesToCreate) {
+                try {
+                    await supabase.from('categories').insert({
+                        name: categoryName,
+                        type: 'expense', // Default to expense, can be updated later
+                        user_id: user.id
+                    });
+                    categoryCount++;
+                } catch (error) {
+                    console.error('Error creating category:', error);
+                }
+            }
+
+            // Refetch categories after creating new ones
+            const { data: updatedCategories } = await supabase
+                .from('categories')
+                .select('*')
+                .eq('user_id', user.id);
+            const allCategories = updatedCategories || categories;
+
+            // Second pass: import transactions
             for (const row of fullData) {
                 const description = row[reverseMap.description]?.trim();
                 const amount = parseFloat(row[reverseMap.amount]);
                 const dateStr = row[reverseMap.date]?.trim();
+                const type = row[reverseMap.type]?.trim().toLowerCase();
+                const categoryName = row[reverseMap.category]?.trim();
                 const parsedDate = parseDate(dateStr);
 
-                if (description && !isNaN(amount) && amount > 0 && parsedDate) {
-                    processedCount++;
+                if (description && !isNaN(amount) && amount > 0 && parsedDate && (type === 'income' || type === 'expense') && categoryName) {
+                    try {
+                        // Find the category ID
+                        const category = allCategories.find(c => c.name.toLowerCase() === categoryName.toLowerCase());
+
+                        if (category) {
+                            await supabase.from('transactions').insert({
+                                description,
+                                amount,
+                                transaction_date: parsedDate.toISOString().split('T')[0],
+                                type: type as 'income' | 'expense',
+                                category_id: category.id,
+                                user_id: user.id
+                            });
+                            processedCount++;
+                        } else {
+                            skippedCount++;
+                        }
+                    } catch (error) {
+                        console.error('Error importing transaction:', error);
+                        skippedCount++;
+                    }
                 } else {
                     skippedCount++;
                 }
             }
 
+            // Refetch data to update the UI
             await refetchTransactions();
             await refetchCategories();
-            toast.success(`Import complete! ${processedCount} transactions added, ${skippedCount} skipped.`, { id: toastId, duration: 5000 });
+
+            toast.success(`Import complete! ${processedCount} transactions added, ${categoryCount} categories created, ${skippedCount} skipped.`, { id: toastId, duration: 5000 });
             navigate('/dashboard');
 
         } catch (error: any) {
-            toast.error(error.message, { id: toastId, duration: 5000 });
+            console.error('Import error:', error);
+            toast.error('Import failed. Please check your CSV format and try again.', { id: toastId, duration: 5000 });
         } finally {
             setIsImporting(false);
         }
@@ -204,7 +269,20 @@ const ImportTransactionsScreen: React.FC = () => {
                     {file && (
                         <div className="bg-dark-primary p-3 rounded-lg flex items-center justify-between">
                             <div className="flex items-center gap-3"><File size={20} className="text-gray-400" /><span>{file.name}</span></div>
-                            <span className="text-sm text-gray-500">{(file.size / 1024).toFixed(2)} KB</span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-500">{(file.size / 1024).toFixed(2)} KB</span>
+                                <button
+                                    onClick={() => {
+                                        setFile(null);
+                                        setParsedData([]);
+                                        setHeaders([]);
+                                        setColumnMap({});
+                                    }}
+                                    className="text-red-400 hover:text-red-300 text-sm font-medium"
+                                >
+                                    Remove
+                                </button>
+                            </div>
                         </div>
                     )}
                      <div className="mt-4">
@@ -252,8 +330,11 @@ const ImportTransactionsScreen: React.FC = () => {
                                 </tbody>
                             </table>
                         </div>
-                        <div className="mt-6">
-                            <Button onClick={handleImport} disabled={!isMappingValid || isImporting} className="w-full">
+                        <div className="mt-6 flex gap-3">
+                            <button onClick={() => navigate(-1)} className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 px-4 rounded-xl text-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50">
+                                Cancel
+                            </button>
+                            <Button onClick={handleImport} disabled={!isMappingValid || isImporting} className="flex-1">
                                 {isImporting ? <Loader2 className="animate-spin" /> : `Import Transactions`}
                             </Button>
                         </div>
