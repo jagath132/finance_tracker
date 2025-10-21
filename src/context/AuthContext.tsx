@@ -131,6 +131,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (error) {
         console.error("Login error:", error);
+        // Handle specific error cases
+        if (error.message.includes('Invalid login credentials')) {
+          return { success: false, error: "Invalid email or password. Please check your credentials and try again." };
+        }
+        if (error.message.includes('Email not confirmed')) {
+          return { success: false, error: "Please check your email and confirm your account before logging in." };
+        }
         return { success: false, error: error.message };
       }
 
@@ -141,12 +148,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       return { success: false, error: "Login failed" };
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login fetch error:", error);
-      return {
-        success: false,
-        error: "Network error. Please check your connection and try again.",
-      };
+      // Handle network errors specifically
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        return { success: false, error: "Network error. Please check your internet connection and try again." };
+      }
+      return { success: false, error: "An unexpected error occurred. Please try again." };
     }
   };
 
