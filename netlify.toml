@@ -12,6 +12,14 @@
   VITE_SUPABASE_URL = "https://wgzyssujuylspzruezlq.supabase.co"
   VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indnenlzc3VqdXlsc3B6cnVlemxxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEwNzI1OTYsImV4cCI6MjA3NjY0ODU5Nn0.6unQvAfZiI3o5HpQa3H5pOGoZD9WLZn5m9a-fw55WCI"
 
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
 [build.processing]
   skip_processing = false  # Ensure processing is not skipped
 

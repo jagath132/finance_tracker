@@ -3,10 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-console.log(
-  "Supabase URL:https://miirpcxxsbptpizdhuby.supabase.co",
-  supabaseUrl
-);
+console.log("Supabase URL:", supabaseUrl);
 console.log("Supabase Key exists:", !!supabaseAnonKey);
 
 if (!supabaseUrl || !supabaseAnonKey) {
@@ -24,6 +21,14 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   global: {
     headers: {
       'X-Client-Info': 'finance-tracker',
+    },
+  },
+  db: {
+    schema: 'public',
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10,
     },
   },
 });

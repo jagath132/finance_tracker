@@ -58,14 +58,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     const getSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      try {
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
 
-      if (session) {
-        setUser(session.user);
-        setSession(session);
-      } else {
+        if (error) {
+          console.error("Session error:", error);
+          setUser(null);
+          setSession(null);
+        } else if (session) {
+          setUser(session.user);
+          setSession(session);
+        } else {
+          setUser(null);
+          setSession(null);
+        }
+      } catch (error) {
+        console.error("Failed to get session:", error);
         setUser(null);
         setSession(null);
       }
@@ -122,10 +133,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const login = async (email: string, password: string) => {
     try {
       console.log("Attempting login for:", email);
-      const { data, error } = await supabase.auth.signInWithPassword({
+
+      // Add timeout to prevent hanging requests
+      const loginPromise = supabase.auth.signInWithPassword({
         email,
         password,
       });
+
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Request timeout')), 30000)
+      );
+
+      const { data, error } = await Promise.race([loginPromise, timeoutPromise]) as any;
 
       console.log("Login response:", { data: !!data, error });
 
@@ -137,6 +156,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         }
         if (error.message.includes('Email not confirmed')) {
           return { success: false, error: "Please check your email and confirm your account before logging in." };
+        }
+        if (error.message.includes('Too many requests')) {
+          return { success: false, error: "Too many login attempts. Please wait a few minutes and try again." };
         }
         return { success: false, error: error.message };
       }
@@ -151,6 +173,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error: any) {
       console.error("Login fetch error:", error);
       // Handle network errors specifically
+      if (error.message === 'Request timeout') {
+        return { success: false, error: "Request timed out. Please check your internet connection and try again." };
+      }
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
         return { success: false, error: "Network error. Please check your internet connection and try again." };
       }
