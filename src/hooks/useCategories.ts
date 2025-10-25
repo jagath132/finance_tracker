@@ -116,5 +116,27 @@ export const useCategories = () => {
         }
     };
 
-    return { categories, loading, addCategory, updateCategory, deleteCategory, refetch: fetchCategories };
+    const deleteAllCategories = async () => {
+        if (!user) return;
+
+        try {
+            const { error } = await supabase
+                .from('categories')
+                .delete()
+                .eq('user_id', user.id);
+
+            if (error) {
+                console.error('Error deleting all categories:', error);
+                toast.error('Failed to delete all categories');
+                return;
+            }
+
+            setCategories([]);
+        } catch (error) {
+            console.error('Error deleting all categories:', error);
+            toast.error('Failed to delete all categories');
+        }
+    };
+
+    return { categories, loading, addCategory, updateCategory, deleteCategory, deleteAllCategories, refetch: fetchCategories };
 };
