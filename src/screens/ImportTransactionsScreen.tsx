@@ -67,6 +67,7 @@ const ImportTransactionsScreen: React.FC = () => {
 
     const [file, setFile] = useState<File | null>(null);
     const [parsedData, setParsedData] = useState<any[]>([]);
+    const [fullParsedData, setFullParsedData] = useState<any[]>([]);
     const [headers, setHeaders] = useState<string[]>([]);
     const [columnMap, setColumnMap] = useState<ColumnMap>({});
     const [isImporting, setIsImporting] = useState(false);
@@ -94,6 +95,14 @@ const ImportTransactionsScreen: React.FC = () => {
                         else initialMap[header] = 'ignore';
                     });
                     setColumnMap(initialMap);
+                },
+            });
+            // Parse full data for import
+            Papa.parse(selectedFile, {
+                header: true,
+                skipEmptyLines: true,
+                complete: (results) => {
+                    setFullParsedData(results.data);
                 },
             });
         }
@@ -125,15 +134,12 @@ const ImportTransactionsScreen: React.FC = () => {
     };
 
     const handleImport = async () => {
-        if (!file || !user) return;
+        if (!file || !user || fullParsedData.length === 0) return;
         setIsImporting(true);
         const toastId = toast.loading('Starting import...');
 
         try {
-            // Parse the entire CSV file
-            const fullData: any[] = await new Promise((resolve) => {
-                Papa.parse(file, { header: true, skipEmptyLines: true, complete: (results) => resolve(results.data) });
-            });
+            const fullData = fullParsedData;
 
             const reverseMap = Object.entries(columnMap).reduce((acc, [header, field]) => {
                 if (field !== 'ignore') acc[field] = header;
@@ -152,7 +158,7 @@ const ImportTransactionsScreen: React.FC = () => {
             let skippedCount = 0;
             let categoryCount = 0;
 
-            // First pass: create missing categories
+            // First pass: collect missing categories
             const categoryNames = new Set(categories.map(c => c.name.toLowerCase()));
             const categoriesToCreate: string[] = [];
 
@@ -164,17 +170,22 @@ const ImportTransactionsScreen: React.FC = () => {
                 }
             }
 
-            // Create missing categories
-            for (const categoryName of categoriesToCreate) {
-                try {
-                    await supabase.from('categories').insert({
-                        name: categoryName,
-                        type: 'expense', // Default to expense, can be updated later
-                        user_id: user.id
-                    });
-                    categoryCount++;
-                } catch (error) {
-                    console.error('Error creating category:', error);
+            // Batch create missing categories
+            if (categoriesToCreate.length > 0) {
+                const categoryInserts = categoriesToCreate.map(name => ({
+                    name,
+                    type: 'expense' as const, // Default to expense, can be updated later
+                    user_id: user.id
+                }));
+
+                const { error: categoryError } = await supabase
+                    .from('categories')
+                    .insert(categoryInserts);
+
+                if (categoryError) {
+                    console.error('Error creating categories:', categoryError);
+                } else {
+                    categoryCount = categoriesToCreate.length;
                 }
             }
 
@@ -185,7 +196,9 @@ const ImportTransactionsScreen: React.FC = () => {
                 .eq('user_id', user.id);
             const allCategories = updatedCategories || categories;
 
-            // Second pass: import transactions
+            // Prepare transactions for batch insert
+            const transactionsToInsert: any[] = [];
+
             for (const row of fullData) {
                 const description = row[reverseMap.description]?.trim();
                 const amount = parseFloat(row[reverseMap.amount]);
@@ -195,29 +208,37 @@ const ImportTransactionsScreen: React.FC = () => {
                 const parsedDate = parseDate(dateStr);
 
                 if (description && !isNaN(amount) && amount > 0 && parsedDate && (type === 'income' || type === 'expense') && categoryName) {
-                    try {
-                        // Find the category ID
-                        const category = allCategories.find(c => c.name.toLowerCase() === categoryName.toLowerCase());
+                    // Find the category ID
+                    const category = allCategories.find(c => c.name.toLowerCase() === categoryName.toLowerCase());
 
-                        if (category) {
-                            await supabase.from('transactions').insert({
-                                description,
-                                amount,
-                                transaction_date: parsedDate.toISOString().split('T')[0],
-                                type: type as 'income' | 'expense',
-                                category_id: category.id,
-                                user_id: user.id
-                            });
-                            processedCount++;
-                        } else {
-                            skippedCount++;
-                        }
-                    } catch (error) {
-                        console.error('Error importing transaction:', error);
+                    if (category) {
+                        transactionsToInsert.push({
+                            description,
+                            amount,
+                            transaction_date: parsedDate.toISOString().split('T')[0],
+                            type: type as 'income' | 'expense',
+                            category_id: category.id,
+                            user_id: user.id
+                        });
+                        processedCount++;
+                    } else {
                         skippedCount++;
                     }
                 } else {
                     skippedCount++;
+                }
+            }
+
+            // Batch insert transactions
+            if (transactionsToInsert.length > 0) {
+                const { error: transactionError } = await supabase
+                    .from('transactions')
+                    .insert(transactionsToInsert);
+
+                if (transactionError) {
+                    console.error('Error importing transactions:', transactionError);
+                    toast.error('Import failed. Please check your CSV format and try again.', { id: toastId, duration: 5000 });
+                    return;
                 }
             }
 
