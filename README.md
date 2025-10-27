@@ -1,4 +1,4 @@
-Finance Tracker
+Cointrail
 
 A modern, responsive web application for tracking personal finances, built with React, TypeScript, and Vite.
 
