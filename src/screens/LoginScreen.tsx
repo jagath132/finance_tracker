@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Mail, Lock, Coins } from "lucide-react";
 
@@ -24,7 +24,6 @@ import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 
 const LoginScreen: React.FC = () => {
-  const navigate = useNavigate();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

@@ -1,26 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, Edit, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const unusedToast = toast;
 import { useCategories } from "../hooks/useCategories";
 import { useModal } from "../context/ModalContext";
 import { useTransactions } from "../hooks/useTransactions";
 import ConfirmationModal from "../components/ui/ConfirmationModal";
-
-// Define local types since we removed Supabase types
-interface Transaction {
-  id: string;
-  amount: number;
-  description: string;
-  category_id: string;
-  user_id: string;
-  transaction_date: string;
-  type: "income" | "expense";
-  created_at: string;
-  notes?: string;
-  attachment_url?: string;
-  updated_at?: string;
-}
 
 const TransactionDetailScreen: React.FC = () => {
   const { id } = useParams();

@@ -25,7 +25,7 @@ interface Transaction {
 const SearchScreen: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { categories, loading: categoriesLoading } = useCategories();
+  const { categories } = useCategories();
   const { transactions } = useTransactions();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -56,7 +56,7 @@ const SearchScreen: React.FC = () => {
             new Date(a.transaction_date).getTime()
         );
 
-      setResults(filteredResults);
+      setResults(filteredResults as Transaction[]);
       setIsLoading(false);
     },
     [user, transactions]

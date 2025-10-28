@@ -9,7 +9,6 @@ import {
   Sun,
   Moon,
   Monitor,
-  Trash2,
   AlertTriangle,
   BarChart3,
   Receipt,

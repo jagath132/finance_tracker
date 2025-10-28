@@ -70,7 +70,7 @@ const RegisterScreen: React.FC = () => {
       } else {
         toast.error(result.error || "Registration failed. Please try again.");
       }
-    } catch (error) {
+    } catch {
       toast.error("Registration failed. Please try again.");
     }
 
