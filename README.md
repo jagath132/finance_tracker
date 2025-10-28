@@ -31,17 +31,20 @@ A modern, responsive finance tracking application built with React, TypeScript, 
 ### Setup
 
 1. Clone the repository:
+
    ```bash
    git clone <repository-url>
    cd finance_tracker-main
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Copy environment variables:
+
    ```bash
    cp .env.example .env
    ```
@@ -85,15 +88,18 @@ This project uses GitHub Actions for automated deployment:
 Set these in your GitHub repository secrets:
 
 #### Netlify
+
 - `NETLIFY_AUTH_TOKEN`: Your Netlify personal access token
 - `NETLIFY_SITE_ID_STAGING`: Staging site ID
 - `NETLIFY_SITE_ID_PRODUCTION`: Production site ID
 
 #### Supabase
+
 - `VITE_SUPABASE_URL`: Supabase project URL
 - `VITE_SUPABASE_ANON_KEY`: Supabase anonymous key
 
 #### Android (for mobile builds)
+
 - `ANDROID_KEYSTORE_BASE64`: Base64 encoded keystore file
 - `ANDROID_KEYSTORE_PASSWORD`: Keystore password
 - `ANDROID_KEY_ALIAS`: Key alias

@@ -121,12 +121,12 @@ const SearchScreen: React.FC = () => {
               </p>
               {results.map((tx) => (
                 <TransactionListItem
-                    key={tx.id}
-                    transaction={tx}
-                    category={getCategoryName(tx.category_id)}
-                    onDelete={() => handleDelete(tx.id)}
-                    onEdit={() => navigate(`/transactions/${tx.id}`)}
-                    onClick={() => navigate(`/transactions/${tx.id}`)}
+                  key={tx.id}
+                  transaction={tx}
+                  category={getCategoryName(tx.category_id)}
+                  onDelete={() => handleDelete(tx.id)}
+                  onEdit={() => navigate(`/transactions/${tx.id}`)}
+                  onClick={() => navigate(`/transactions/${tx.id}`)}
                 />
               ))}
             </div>

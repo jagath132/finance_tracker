@@ -55,7 +55,7 @@ const AppContent: React.FC = () => {
   const navigate = useNavigate();
   const { modalType, transaction, closeModal } = useModal();
 
-  console.log('AppContent: Current location:', location.pathname);
+  console.log("AppContent: Current location:", location.pathname);
 
   // Handle email confirmation links
   useEffect(() => {
@@ -82,19 +82,18 @@ const AppContent: React.FC = () => {
     handleEmailConfirmation();
   }, [navigate]);
 
-  const showNavBar = [
-    "/dashboard",
-    "/categories",
-    "/settings",
-    "/transactions",
-  ].includes(location.pathname) && ![
-    "/login",
-    "/register",
-    "/forgot-password",
-    "/update-password",
-    "/email-confirmation",
-    "/",
-  ].includes(location.pathname);
+  const showNavBar =
+    ["/dashboard", "/categories", "/settings", "/transactions"].includes(
+      location.pathname
+    ) &&
+    ![
+      "/login",
+      "/register",
+      "/forgot-password",
+      "/update-password",
+      "/email-confirmation",
+      "/",
+    ].includes(location.pathname);
   const showFab = ["/dashboard"].includes(location.pathname);
 
   return (

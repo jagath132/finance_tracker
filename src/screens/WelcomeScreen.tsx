@@ -1,7 +1,7 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Coins } from 'lucide-react';
+import React from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Coins } from "lucide-react";
 
 const WelcomeScreen: React.FC = () => {
   return (
@@ -50,8 +50,11 @@ const WelcomeScreen: React.FC = () => {
           </button>
         </Link>
         <p className="text-center mt-6 text-light-text-secondary dark:text-dark-text-secondary">
-          Already have an account?{' '}
-          <Link to="/login" className="font-semibold text-brand-green hover:underline">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="font-semibold text-brand-green hover:underline"
+          >
             Login
           </Link>
         </p>
