@@ -35,7 +35,7 @@ const UpdatePasswordScreen: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-dark-primary flex flex-col justify-center items-center p-4 sm:p-6">
+        <div className="min-h-screen bg-dark-primary flex flex-col justify-center items-center p-4 sm:p-6 lg:p-8 pb-20">
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}

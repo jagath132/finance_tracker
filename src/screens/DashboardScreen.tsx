@@ -68,7 +68,7 @@ const DashboardScreen: React.FC = () => {
   const loading = transactionsLoading || categoriesLoading;
 
   return (
-    <div className="p-4 sm:p-6 bg-light-primary dark:bg-dark-primary min-h-screen">
+    <div className="p-4 sm:p-6 lg:p-8 bg-light-primary dark:bg-dark-primary min-h-screen">
       <header className="flex justify-between items-center mb-6">
         <div>
           <p className="text-light-text-secondary dark:text-dark-text-secondary">Welcome back,</p>

@@ -267,7 +267,7 @@ const ImportTransactionsScreen: React.FC = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-dark-primary text-white p-4 sm:p-6">
+        <div className="min-h-screen bg-dark-primary text-white p-4 sm:p-6 lg:p-8 pb-20">
             <header className="flex items-center justify-between mb-8">
                 <button onClick={() => navigate(-1)} className="p-2 rounded-full bg-dark-secondary">
                     <ArrowLeft size={24} className="text-gray-400" />

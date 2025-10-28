@@ -1,29 +1,39 @@
-Cointrail
+# Cointrail - Finance Tracker
 
-A modern, responsive web application for tracking personal finances, built with React, TypeScript, and Vite.
+A modern, responsive finance tracking application built with React, TypeScript, and Capacitor for web and mobile deployment.
 
-Features
+## Features
 
-- User authentication (login/register)
-- Dashboard with financial overview
-- Transaction management (add, edit, delete, search)
-- Category management
-- Data import/export (CSV)
-- Profile management
-- Responsive design with dark/light theme
-- Local data storage (ready for backend integration)
+- Track income and expenses
+- Categorize transactions
+- View detailed analytics and summaries
+- Import/export transaction data
+- Dark/light theme support
+- Responsive design for all devices
+- Mobile app support via Capacitor
 
-Prerequisites
+## Tech Stack
 
-- Node.js (version 18 or higher)
+- **Frontend**: React 19, TypeScript, Tailwind CSS
+- **Backend**: Supabase
+- **Mobile**: Capacitor
+- **Build**: Vite
+- **Deployment**: Netlify (Web), GitHub Actions (CI/CD)
+
+## Development
+
+### Prerequisites
+
+- Node.js 18+
 - npm or yarn
+- Git
 
-Installation
+### Setup
 
 1. Clone the repository:
    ```bash
    git clone <repository-url>
-   cd finance_tracker
+   cd finance_tracker-main
    ```
 
 2. Install dependencies:
@@ -31,41 +41,104 @@ Installation
    npm install
    ```
 
-Setup
-
-1. Clone the repository and install dependencies:
+3. Copy environment variables:
    ```bash
-   git clone <repository-url>
-   cd finance_tracker
-   npm install
+   cp .env.example .env
    ```
 
-2. Start the development server:
+4. Fill in your Supabase credentials in `.env`
+
+5. Start development server:
    ```bash
    npm run dev
    ```
 
-3. Open your browser and navigate to `http://localhost:5173`
+### Building
 
-Running the Application
+```bash
+# Build for web
+npm run build
 
-The application is now running with mock data and local state management. All features work without a backend:
+# Build for mobile
+npx cap sync android
+npx cap sync ios
+```
 
-- Authentication is simulated (always succeeds)
-- Data is stored in memory (resets on page refresh)
-- All CRUD operations work with local state
+## CI/CD Pipeline
 
-Deployment
+This project uses GitHub Actions for automated deployment:
 
-This app is configured for deployment on Netlify. The `netlify.toml` file contains the build settings.
+### Environments
 
-For other platforms, ensure the environment variables are set in your deployment environment.
+- **Staging**: Deployed from `develop` branch to Netlify staging site
+- **Production**: Deployed from `main` branch to Netlify production site
 
-Technologies Used
+### Workflows
 
-- **Frontend**: React 19, TypeScript, Vite
-- **Styling**: Tailwind CSS, Framer Motion
-- **State Management**: React Context + Hooks
-- **Icons**: Lucide React
-- **Data Processing**: PapaParse for CSV handling
-- **Backend Ready**: Architecture prepared for any backend integration
+- `deploy-web.yml`: Handles web builds and Netlify deployments
+- `deploy-mobile.yml`: Handles Android APK builds
+- `rollback.yml`: Manual rollback workflow for failed deployments
+- `test-pipeline.yml`: Test the CI/CD pipeline manually
+
+### Required Secrets
+
+Set these in your GitHub repository secrets:
+
+#### Netlify
+- `NETLIFY_AUTH_TOKEN`: Your Netlify personal access token
+- `NETLIFY_SITE_ID_STAGING`: Staging site ID
+- `NETLIFY_SITE_ID_PRODUCTION`: Production site ID
+
+#### Supabase
+- `VITE_SUPABASE_URL`: Supabase project URL
+- `VITE_SUPABASE_ANON_KEY`: Supabase anonymous key
+
+#### Android (for mobile builds)
+- `ANDROID_KEYSTORE_BASE64`: Base64 encoded keystore file
+- `ANDROID_KEYSTORE_PASSWORD`: Keystore password
+- `ANDROID_KEY_ALIAS`: Key alias
+- `ANDROID_KEY_PASSWORD`: Key password
+
+### Deployment Process
+
+1. Push to `develop` branch → Automatic staging deployment
+2. Create PR to `main` → Build verification
+3. Merge to `main` → Automatic production deployment
+
+### Rollback
+
+Use the `rollback.yml` workflow to rollback to a previous commit:
+
+1. Go to Actions tab in GitHub
+2. Select "Rollback Deployment" workflow
+3. Choose environment and commit SHA
+4. Run workflow
+
+## Project Structure
+
+```
+src/
+├── components/          # Reusable UI components
+├── contexts/           # React contexts (Auth, Theme, etc.)
+├── hooks/             # Custom React hooks
+├── lib/               # Utility libraries
+├── screens/           # Page components
+├── types/             # TypeScript type definitions
+└── main.tsx           # App entry point
+
+android/               # Android project files
+ios/                   # iOS project files (if applicable)
+.github/workflows/     # CI/CD workflows
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Make your changes and commit: `git commit -m 'Add your feature'`
+4. Push to the branch: `git push origin feature/your-feature`
+5. Create a Pull Request
+
+## License
+
+This project is licensed under the MIT License.

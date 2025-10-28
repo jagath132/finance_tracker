@@ -76,7 +76,7 @@ const SearchScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-dark-primary text-white p-4 sm:p-6">
+    <div className="min-h-screen bg-dark-primary text-white p-4 sm:p-6 lg:p-8 pb-20">
       <header className="flex items-center gap-4 mb-6">
         <button
           onClick={() => navigate(-1)}

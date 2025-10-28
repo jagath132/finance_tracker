@@ -1,0 +1,56 @@
+name: Rollback Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to rollback (staging or production)'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+      commit_sha:
+        description: 'Commit SHA to rollback to'
+        required: true
+        type: string
+
+jobs:
+  rollback-web:
+    runs-on: ubuntu-latest
+    if: inputs.environment == 'staging' || inputs.environment == 'production'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.commit_sha }}
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build for production
+      run: npm run build
+      env:
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+    - name: Rollback Netlify Deployment
+      uses: netlify/actions/cli@master
+      with:
+        args: deploy --dir=dist --prod=${{ inputs.environment == 'production' && 'true' || 'false' }}
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ inputs.environment == 'production' && secrets.NETLIFY_SITE_ID_PRODUCTION || secrets.NETLIFY_SITE_ID_STAGING }}
+
+    - name: Notify rollback completion
+      run: |
+        echo "Rollback to ${{ inputs.commit_sha }} completed for ${{ inputs.environment }} environment"
+        # Add notification logic here

@@ -87,6 +87,13 @@ const AppContent: React.FC = () => {
     "/categories",
     "/settings",
     "/transactions",
+  ].includes(location.pathname) && ![
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/update-password",
+    "/email-confirmation",
+    "/",
   ].includes(location.pathname);
   const showFab = ["/dashboard"].includes(location.pathname);
 

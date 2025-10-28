@@ -100,7 +100,7 @@ const CategoriesScreen: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen p-4 sm:p-6">
+        <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20">
             <header className="mb-6 flex justify-between items-center">
                 <h1 className="text-2xl font-bold">Categories</h1>
                 <button type="button" onClick={() => setShowAddForm(!showAddForm)} className="bg-brand-green text-white p-2 rounded-full shadow-lg">

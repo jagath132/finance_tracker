@@ -106,7 +106,7 @@ const SettingsScreen: React.FC = () => {
 
   return (
     <>
-      <div className="min-h-screen p-4 sm:p-6">
+      <div className="min-h-screen p-4 sm:p-6 lg:p-8 pb-20">
         <header className="mb-6">
           <h1 className="text-2xl font-bold">Settings</h1>
         </header>
