@@ -36,6 +36,7 @@ jobs:
       if: github.ref == 'refs/heads/develop' && github.event_name != 'pull_request'
       run: |
         cd android
+        chmod +x ./gradlew
         ./gradlew assembleDebug
       env:
         VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
@@ -45,6 +46,7 @@ jobs:
       if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
       run: |
         cd android
+        chmod +x ./gradlew
         ./gradlew assembleRelease
       env:
         VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
