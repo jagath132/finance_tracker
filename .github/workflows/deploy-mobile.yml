@@ -33,7 +33,7 @@ jobs:
       run: npx cap sync android
 
     - name: Build Android APK (Debug)
-      if: github.ref == 'refs/heads/develop'
+      if: github.ref == 'refs/heads/develop' && github.event_name != 'pull_request'
       run: |
         cd android
         ./gradlew assembleDebug
@@ -42,7 +42,7 @@ jobs:
         VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
     - name: Build Android APK (Release)
-      if: github.ref == 'refs/heads/main'
+      if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
       run: |
         cd android
         ./gradlew assembleRelease
