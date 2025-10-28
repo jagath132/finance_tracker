@@ -141,24 +141,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Request timeout')), 30000)
+        setTimeout(() => reject(new Error("Request timeout")), 30000)
       );
 
-      const { data, error } = await Promise.race([loginPromise, timeoutPromise]) as any;
+      const { data, error } = (await Promise.race([
+        loginPromise,
+        timeoutPromise,
+      ])) as { data: any; error: any };
 
       console.log("Login response:", { data: !!data, error });
 
       if (error) {
         console.error("Login error:", error);
         // Handle specific error cases
-        if (error.message.includes('Invalid login credentials')) {
-          return { success: false, error: "Invalid email or password. Please check your credentials and try again." };
+        if (error.message.includes("Invalid login credentials")) {
+          return {
+            success: false,
+            error:
+              "Invalid email or password. Please check your credentials and try again.",
+          };
         }
-        if (error.message.includes('Email not confirmed')) {
-          return { success: false, error: "Please check your email and confirm your account before logging in." };
+        if (error.message.includes("Email not confirmed")) {
+          return {
+            success: false,
+            error:
+              "Please check your email and confirm your account before logging in.",
+          };
         }
-        if (error.message.includes('Too many requests')) {
-          return { success: false, error: "Too many login attempts. Please wait a few minutes and try again." };
+        if (error.message.includes("Too many requests")) {
+          return {
+            success: false,
+            error:
+              "Too many login attempts. Please wait a few minutes and try again.",
+          };
         }
         return { success: false, error: error.message };
       }
@@ -170,16 +185,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
 
       return { success: false, error: "Login failed" };
-    } catch (error: any) {
+    } catch (error) {
       console.error("Login fetch error:", error);
       // Handle network errors specifically
-      if (error.message === 'Request timeout') {
-        return { success: false, error: "Request timed out. Please check your internet connection and try again." };
+      if (error instanceof Error) {
+        if (error.message === "Request timeout") {
+          return {
+            success: false,
+            error:
+              "Request timed out. Please check your internet connection and try again.",
+          };
+        }
+        if (error.name === "TypeError" && error.message.includes("fetch")) {
+          return {
+            success: false,
+            error:
+              "Network error. Please check your internet connection and try again.",
+          };
+        }
       }
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        return { success: false, error: "Network error. Please check your internet connection and try again." };
-      }
-      return { success: false, error: "An unexpected error occurred. Please try again." };
+      return {
+        success: false,
+        error: "An unexpected error occurred. Please try again.",
+      };
     }
   };
 

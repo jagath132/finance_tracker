@@ -1,8 +1,22 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Coins, FileText, Calendar, Tag, Hash, Image, Download, Edit, Trash2, Printer, ChevronDown, ChevronRight, Check, Save, Receipt } from 'lucide-react';
-import * as Icons from 'lucide-react';
-import { Transaction, Category } from '../../types/database';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  X,
+  FileText,
+  Tag,
+  Image,
+  Download,
+  Edit,
+  Trash2,
+  Printer,
+  ChevronDown,
+  ChevronRight,
+  Check,
+  Save,
+  Receipt,
+} from "lucide-react";
+import * as Icons from "lucide-react";
+import { Transaction, Category } from "../../types/database";
 
 interface TransactionInvoiceModalProps {
   isOpen: boolean;
@@ -37,9 +51,9 @@ const TransactionInvoiceModal: React.FC<TransactionInvoiceModalProps> = ({
   };
 
   const toggleSection = (section: keyof typeof expandedSections) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
@@ -57,12 +71,15 @@ const TransactionInvoiceModal: React.FC<TransactionInvoiceModalProps> = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center print:hidden p-4" onClick={onClose}>
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center print:hidden p-4"
+          onClick={onClose}
+        >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="w-full max-w-2xl bg-light-primary dark:bg-dark-primary rounded-2xl shadow-2xl max-h-[90vh] flex flex-col overflow-hidden print:max-w-none print:w-full print:max-h-none print:bg-white print:shadow-none print:rounded-none print:m-0 print:p-6"
             onClick={(e) => e.stopPropagation()}
           >
@@ -71,11 +88,19 @@ const TransactionInvoiceModal: React.FC<TransactionInvoiceModalProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-white dark:bg-dark-secondary rounded-xl flex items-center justify-center shadow-lg">
-                    <img src="/favicon.svg" alt="Cointrail Logo" className="w-8 h-8" />
+                    <img
+                      src="/favicon.svg"
+                      alt="Cointrail Logo"
+                      className="w-8 h-8"
+                    />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold text-light-text dark:text-dark-text">Cointrail</h1>
-                    <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">Professional Finance Tracker</p>
+                    <h1 className="text-2xl font-bold text-light-text dark:text-dark-text">
+                      Cointrail
+                    </h1>
+                    <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
+                      Professional Finance Tracker
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -84,17 +109,20 @@ const TransactionInvoiceModal: React.FC<TransactionInvoiceModalProps> = ({
                     className="p-2 rounded-lg hover:bg-white/50 dark:hover:bg-dark-secondary/50 transition-colors"
                     title="Print Invoice"
                   >
-                    <Printer size={20} className="text-light-text-secondary dark:text-dark-text-secondary" />
+                    <Printer
+                      size={20}
+                      className="text-light-text-secondary dark:text-dark-text-secondary"
+                    />
                   </button>
                   {onEdit && (
                     <button
                       onClick={() => setIsEditing(!isEditing)}
                       className={`p-2 rounded-lg transition-colors ${
                         isEditing
-                          ? 'bg-brand-green text-white'
-                          : 'hover:bg-white/50 dark:hover:bg-dark-secondary/50 text-light-text-secondary dark:text-dark-text-secondary'
+                          ? "bg-brand-green text-white"
+                          : "hover:bg-white/50 dark:hover:bg-dark-secondary/50 text-light-text-secondary dark:text-dark-text-secondary"
                       }`}
-                      title={isEditing ? 'Save Changes' : 'Edit Transaction'}
+                      title={isEditing ? "Save Changes" : "Edit Transaction"}
                     >
                       {isEditing ? <Check size={20} /> : <Edit size={20} />}
                     </button>
@@ -112,7 +140,10 @@ const TransactionInvoiceModal: React.FC<TransactionInvoiceModalProps> = ({
                     onClick={onClose}
                     className="p-2 rounded-lg hover:bg-white/50 dark:hover:bg-dark-secondary/50 transition-colors"
                   >
-                    <X size={24} className="text-light-text-secondary dark:text-dark-text-secondary" />
+                    <X
+                      size={24}
+                      className="text-light-text-secondary dark:text-dark-text-secondary"
+                    />
                   </button>
                 </div>
               </div>
@@ -124,29 +155,47 @@ const TransactionInvoiceModal: React.FC<TransactionInvoiceModalProps> = ({
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-3">
                     <Receipt className="text-brand-green" size={24} />
-                    <h2 className="text-xl font-semibold text-light-text dark:text-dark-text">Transaction Invoice</h2>
+                    <h2 className="text-xl font-semibold text-light-text dark:text-dark-text">
+                      Transaction Invoice
+                    </h2>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">Invoice #</p>
-                    <p className="font-mono text-lg font-semibold">{transaction.id.slice(-8)}</p>
+                    <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
+                      Invoice #
+                    </p>
+                    <p className="font-mono text-lg font-semibold">
+                      {transaction.id.slice(-8)}
+                    </p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-light-text-secondary dark:text-dark-text-secondary">Date</p>
-                    <p className="font-medium">{new Date(transaction.transaction_date).toLocaleDateString('en-IN', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}</p>
+                    <p className="text-light-text-secondary dark:text-dark-text-secondary">
+                      Date
+                    </p>
+                    <p className="font-medium">
+                      {new Date(
+                        transaction.transaction_date
+                      ).toLocaleDateString("en-IN", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-light-text-secondary dark:text-dark-text-secondary">Time</p>
-                    <p className="font-medium">{new Date(transaction.transaction_date).toLocaleTimeString('en-IN', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}</p>
+                    <p className="text-light-text-secondary dark:text-dark-text-secondary">
+                      Time
+                    </p>
+                    <p className="font-medium">
+                      {new Date(
+                        transaction.transaction_date
+                      ).toLocaleTimeString("en-IN", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -155,20 +204,26 @@ const TransactionInvoiceModal: React.FC<TransactionInvoiceModalProps> = ({
               <div className="p-6">
                 <div
                   className="flex items-center justify-between p-4 bg-light-secondary dark:bg-dark-secondary rounded-lg cursor-pointer hover:bg-light-primary dark:hover:bg-dark-primary transition-colors"
-                  onClick={() => toggleSection('details')}
+                  onClick={() => toggleSection("details")}
                 >
                   <div className="flex items-center space-x-3">
                     <FileText className="text-brand-green" size={20} />
-                    <h3 className="font-semibold text-light-text dark:text-dark-text">Transaction Details</h3>
+                    <h3 className="font-semibold text-light-text dark:text-dark-text">
+                      Transaction Details
+                    </h3>
                   </div>
-                  {expandedSections.details ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+                  {expandedSections.details ? (
+                    <ChevronDown size={20} />
+                  ) : (
+                    <ChevronRight size={20} />
+                  )}
                 </div>
 
                 <AnimatePresence>
                   {expandedSections.details && (
                     <motion.div
                       initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
+                      animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.3 }}
                       className="overflow-hidden"
@@ -177,28 +232,49 @@ const TransactionInvoiceModal: React.FC<TransactionInvoiceModalProps> = ({
                         {/* Description */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <label className="text-sm font-medium text-light-text-secondary dark:text-dark-text-secondary">Description</label>
+                            <label className="text-sm font-medium text-light-text-secondary dark:text-dark-text-secondary">
+                              Description
+                            </label>
                             {isEditing ? (
                               <input
                                 type="text"
-                                value={editedTransaction?.description || ''}
-                                onChange={(e) => setEditedTransaction(prev => prev ? {...prev, description: e.target.value} : null)}
+                                value={editedTransaction?.description || ""}
+                                onChange={(e) =>
+                                  setEditedTransaction(
+                                    (prev: Transaction | null) =>
+                                      prev
+                                        ? {
+                                            ...prev,
+                                            description: e.target.value,
+                                          }
+                                        : null
+                                  )
+                                }
                                 className="w-full p-3 border border-light-border dark:border-dark-border rounded-lg bg-light-primary dark:bg-dark-primary focus:ring-2 focus:ring-brand-green focus:border-transparent"
                               />
                             ) : (
-                              <p className="p-3 bg-light-primary dark:bg-dark-primary rounded-lg font-medium">{transaction.description}</p>
+                              <p className="p-3 bg-light-primary dark:bg-dark-primary rounded-lg font-medium">
+                                {transaction.description}
+                              </p>
                             )}
                           </div>
 
                           {/* Amount */}
                           <div className="space-y-2">
-                            <label className="text-sm font-medium text-light-text-secondary dark:text-dark-text-secondary">Amount</label>
-                            <div className={`p-3 rounded-lg font-bold text-xl ${
-                              transaction.type === 'income'
-                                ? 'bg-green-50 dark:bg-green-900/20 text-brand-green'
-                                : 'bg-red-50 dark:bg-red-900/20 text-brand-red'
-                            }`}>
-                              {transaction.type === 'income' ? '+' : '-'}₹{new Intl.NumberFormat('en-IN').format(transaction.amount)}
+                            <label className="text-sm font-medium text-light-text-secondary dark:text-dark-text-secondary">
+                              Amount
+                            </label>
+                            <div
+                              className={`p-3 rounded-lg font-bold text-xl ${
+                                transaction.type === "income"
+                                  ? "bg-green-50 dark:bg-green-900/20 text-brand-green"
+                                  : "bg-red-50 dark:bg-red-900/20 text-brand-red"
+                              }`}
+                            >
+                              {transaction.type === "income" ? "+" : "-"}₹
+                              {new Intl.NumberFormat("en-IN").format(
+                                transaction.amount
+                              )}
                             </div>
                           </div>
                         </div>
@@ -206,24 +282,46 @@ const TransactionInvoiceModal: React.FC<TransactionInvoiceModalProps> = ({
                         {/* Category and Type */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <label className="text-sm font-medium text-light-text-secondary dark:text-dark-text-secondary">Category</label>
+                            <label className="text-sm font-medium text-light-text-secondary dark:text-dark-text-secondary">
+                              Category
+                            </label>
                             <div className="flex items-center space-x-3 p-3 bg-light-primary dark:bg-dark-primary rounded-lg">
-                              {category?.icon && React.createElement((Icons as any)[category.icon.charAt(0).toUpperCase() + category.icon.slice(1)] || Tag, {
-                                size: 20,
-                                className: "text-brand-green"
-                              })}
-                              <span className="font-medium">{category?.name || 'Uncategorized'}</span>
+                              {category?.icon &&
+                                React.createElement(
+                                  ((
+                                    Icons as Record<
+                                      string,
+                                      React.ComponentType<any>
+                                    >
+                                  )[
+                                    category.icon.charAt(0).toUpperCase() +
+                                      category.icon.slice(1)
+                                  ] as React.ComponentType<any>) || Tag,
+                                  {
+                                    size: 20,
+                                    className: "text-brand-green",
+                                  }
+                                )}
+                              <span className="font-medium">
+                                {category?.name || "Uncategorized"}
+                              </span>
                             </div>
                           </div>
 
                           <div className="space-y-2">
-                            <label className="text-sm font-medium text-light-text-secondary dark:text-dark-text-secondary">Type</label>
-                            <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                              transaction.type === 'income'
-                                ? 'bg-green-100 dark:bg-green-900/30 text-brand-green'
-                                : 'bg-red-100 dark:bg-red-900/30 text-brand-red'
-                            }`}>
-                              <span className="capitalize">{transaction.type}</span>
+                            <label className="text-sm font-medium text-light-text-secondary dark:text-dark-text-secondary">
+                              Type
+                            </label>
+                            <div
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                                transaction.type === "income"
+                                  ? "bg-green-100 dark:bg-green-900/30 text-brand-green"
+                                  : "bg-red-100 dark:bg-red-900/30 text-brand-red"
+                              }`}
+                            >
+                              <span className="capitalize">
+                                {transaction.type}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -238,26 +336,34 @@ const TransactionInvoiceModal: React.FC<TransactionInvoiceModalProps> = ({
                 <div className="p-6 border-t border-light-border dark:border-dark-border">
                   <div
                     className="flex items-center justify-between p-4 bg-light-secondary dark:bg-dark-secondary rounded-lg cursor-pointer hover:bg-light-primary dark:hover:bg-dark-primary transition-colors"
-                    onClick={() => toggleSection('notes')}
+                    onClick={() => toggleSection("notes")}
                   >
                     <div className="flex items-center space-x-3">
                       <FileText className="text-brand-green" size={20} />
-                      <h3 className="font-semibold text-light-text dark:text-dark-text">Notes</h3>
+                      <h3 className="font-semibold text-light-text dark:text-dark-text">
+                        Notes
+                      </h3>
                     </div>
-                    {expandedSections.notes ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+                    {expandedSections.notes ? (
+                      <ChevronDown size={20} />
+                    ) : (
+                      <ChevronRight size={20} />
+                    )}
                   </div>
 
                   <AnimatePresence>
                     {expandedSections.notes && (
                       <motion.div
                         initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
+                        animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3 }}
                         className="overflow-hidden"
                       >
                         <div className="mt-4 p-4 bg-light-primary dark:bg-dark-primary rounded-lg">
-                          <p className="text-light-text dark:text-dark-text whitespace-pre-wrap">{transaction.notes}</p>
+                          <p className="text-light-text dark:text-dark-text whitespace-pre-wrap">
+                            {transaction.notes}
+                          </p>
                         </div>
                       </motion.div>
                     )}
@@ -270,26 +376,34 @@ const TransactionInvoiceModal: React.FC<TransactionInvoiceModalProps> = ({
                 <div className="p-6 border-t border-light-border dark:border-dark-border">
                   <div
                     className="flex items-center justify-between p-4 bg-light-secondary dark:bg-dark-secondary rounded-lg cursor-pointer hover:bg-light-primary dark:hover:bg-dark-primary transition-colors"
-                    onClick={() => toggleSection('attachments')}
+                    onClick={() => toggleSection("attachments")}
                   >
                     <div className="flex items-center space-x-3">
                       <Image className="text-brand-green" size={20} />
-                      <h3 className="font-semibold text-light-text dark:text-dark-text">Attachments</h3>
+                      <h3 className="font-semibold text-light-text dark:text-dark-text">
+                        Attachments
+                      </h3>
                     </div>
-                    {expandedSections.attachments ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+                    {expandedSections.attachments ? (
+                      <ChevronDown size={20} />
+                    ) : (
+                      <ChevronRight size={20} />
+                    )}
                   </div>
 
                   <AnimatePresence>
                     {expandedSections.attachments && (
                       <motion.div
                         initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
+                        animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3 }}
                         className="overflow-hidden"
                       >
                         <div className="mt-4 p-4 bg-light-primary dark:bg-dark-primary rounded-lg">
-                          {/\.(jpg|jpeg|png|gif|webp)$/i.test(transaction.attachment_url) ? (
+                          {/\.(jpg|jpeg|png|gif|webp)$/i.test(
+                            transaction.attachment_url
+                          ) ? (
                             <img
                               src={transaction.attachment_url}
                               alt="Attachment"
@@ -298,9 +412,14 @@ const TransactionInvoiceModal: React.FC<TransactionInvoiceModalProps> = ({
                             />
                           ) : (
                             <div className="flex items-center space-x-3 p-4 bg-light-secondary dark:bg-dark-secondary rounded-lg">
-                              <Download className="text-brand-green" size={24} />
+                              <Download
+                                className="text-brand-green"
+                                size={24}
+                              />
                               <div>
-                                <p className="font-medium text-light-text dark:text-dark-text">Download File</p>
+                                <p className="font-medium text-light-text dark:text-dark-text">
+                                  Download File
+                                </p>
                                 <a
                                   href={transaction.attachment_url}
                                   target="_blank"
@@ -347,7 +466,7 @@ const TransactionInvoiceModal: React.FC<TransactionInvoiceModalProps> = ({
                     Thank you for using Cointrail!
                   </p>
                   <p className="text-xs text-light-text-secondary dark:text-dark-text-secondary">
-                    Generated on {new Date().toLocaleDateString('en-IN')}
+                    Generated on {new Date().toLocaleDateString("en-IN")}
                   </p>
                 </div>
               </div>

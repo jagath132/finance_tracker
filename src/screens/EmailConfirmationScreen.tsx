@@ -6,7 +6,6 @@ import {
   ArrowLeft,
   RefreshCw,
   CheckCircle,
-  AlertCircle,
 } from "lucide-react";
 import Button from "../components/ui/Button";
 import { useAuth } from "../context/AuthContext";
@@ -36,6 +35,7 @@ const EmailConfirmationScreen: React.FC = () => {
   const navigate = useNavigate();
 
   const confirmed = searchParams.get("confirmed") === "true";
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const error = searchParams.get("error");
 
   useEffect(() => {
