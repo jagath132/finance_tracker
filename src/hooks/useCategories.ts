@@ -5,7 +5,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
   addDoc,
   updateDoc,
@@ -24,7 +23,7 @@ export const useCategories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Real-time listener for categories
+  // Real‑time listener
   useEffect(() => {
     if (!user) {
       setCategories([]);
@@ -41,13 +40,10 @@ export const useCategories = () => {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const newCategories = snapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            ...data,
-          } as Category;
-        });
+        const newCategories = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Category[];
         setCategories(newCategories);
         setLoading(false);
       },
@@ -61,15 +57,13 @@ export const useCategories = () => {
     return () => unsubscribe();
   }, [user]);
 
-  const fetchCategories = useCallback(async () => {
-    // No-op since we use real-time listener
-  }, []);
+  // No‑op fetch – real‑time listener does the work
+  const fetchCategories = useCallback(async () => { }, []);
 
   const addCategory = async (
     category: Omit<Category, "id" | "user_id" | "created_at">
   ) => {
     if (!user) return;
-
     try {
       await addDoc(collection(db, "categories"), {
         ...category,
@@ -77,8 +71,8 @@ export const useCategories = () => {
         created_at: new Date().toISOString(),
       });
       toast.success("Category added!");
-    } catch (error) {
-      console.error("Error adding category:", error);
+    } catch (e) {
+      console.error("Error adding category:", e);
       toast.error("Failed to add category");
     }
   };
@@ -91,8 +85,8 @@ export const useCategories = () => {
       const docRef = doc(db, "categories", id);
       await updateDoc(docRef, payload);
       toast.success("Category updated!");
-    } catch (error) {
-      console.error("Error updating category:", error);
+    } catch (e) {
+      console.error("Error updating category:", e);
       toast.error("Failed to update category");
     }
   };
@@ -101,31 +95,26 @@ export const useCategories = () => {
     try {
       await deleteDoc(doc(db, "categories", id));
       toast.success("Category deleted!");
-    } catch (error) {
-      console.error("Error deleting category:", error);
+    } catch (e) {
+      console.error("Error deleting category:", e);
       toast.error("Failed to delete category");
     }
   };
 
   const deleteAllCategories = async () => {
     if (!user) return;
-
     try {
       const q = query(
         collection(db, "categories"),
         where("user_id", "==", user.uid)
       );
       const snapshot = await getDocs(q);
-
       const batch = writeBatch(db);
-      snapshot.docs.forEach((doc) => {
-        batch.delete(doc.ref);
-      });
-
+      snapshot.docs.forEach((d) => batch.delete(d.ref));
       await batch.commit();
       toast.success("All categories deleted!");
-    } catch (error) {
-      console.error("Error deleting all categories:", error);
+    } catch (e) {
+      console.error("Error deleting all categories:", e);
       toast.error("Failed to delete all categories");
     }
   };
