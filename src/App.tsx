@@ -10,7 +10,6 @@ import BottomNavBar from "./components/nav/BottomNavBar";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import FloatingActionButton from "./components/ui/FloatingActionButton";
 import { useModal } from "./context/ModalContext";
-import { supabase } from "./lib/supabase";
 
 // Lazy load screens with preload for critical routes
 const WelcomeScreen = lazy(() => import("./screens/WelcomeScreen"));
@@ -56,31 +55,6 @@ const AppContent: React.FC = () => {
   const { modalType, transaction, closeModal } = useModal();
 
   console.log("AppContent: Current location:", location.pathname);
-
-  // Handle email confirmation links
-  useEffect(() => {
-    const handleEmailConfirmation = async () => {
-      const hash = window.location.hash;
-      if (hash && hash.includes("access_token")) {
-        // This is an email confirmation link
-        try {
-          const { data, error } = await supabase.auth.getSession();
-          if (error) {
-            console.error("Confirmation error:", error);
-            navigate("/email-confirmation?error=confirmation_failed");
-          } else if (data.session) {
-            // Successfully confirmed, redirect to email confirmation screen
-            navigate("/email-confirmation?confirmed=true");
-          }
-        } catch (error) {
-          console.error("Confirmation error:", error);
-          navigate("/email-confirmation?error=confirmation_failed");
-        }
-      }
-    };
-
-    handleEmailConfirmation();
-  }, [navigate]);
 
   const showNavBar =
     ["/dashboard", "/categories", "/settings", "/transactions"].includes(
@@ -194,12 +168,12 @@ const AppContent: React.FC = () => {
           </Routes>
           {(modalType === "addTransaction" ||
             modalType === "editTransaction") && (
-            <AddTransactionScreen
-              isOpen={true}
-              onClose={closeModal}
-              transaction={transaction || undefined}
-            />
-          )}
+              <AddTransactionScreen
+                isOpen={true}
+                onClose={closeModal}
+                transaction={transaction || undefined}
+              />
+            )}
         </Suspense>
       </main>
       {showNavBar && <BottomNavBar />}

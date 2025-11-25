@@ -1,4 +1,4 @@
-import { supabase } from "../lib/supabase";
+import { db } from "../lib/firebase";
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -15,9 +15,17 @@ import toast from "react-hot-toast";
 import { useCategories } from "../hooks/useCategories";
 import { useTransactions } from "../hooks/useTransactions";
 import { useAuth } from "../context/AuthContext";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  writeBatch,
+  doc,
+} from "firebase/firestore";
 
 interface ParsedRow {
-  [key: string]: string | number;
+  [key: string]: string;
 }
 
 interface TransactionInsert {
@@ -200,11 +208,15 @@ const ImportTransactionsScreen: React.FC = () => {
       );
 
       // Get existing categories
-      await refetchCategories(); // Ensure we have latest categories
-      const { data: existingCategories } = await supabase
-        .from("categories")
-        .select("*")
-        .eq("user_id", user.id);
+      const q = query(
+        collection(db, "categories"),
+        where("user_id", "==", user.uid)
+      );
+      const querySnapshot = await getDocs(q);
+      const existingCategories = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as any[];
 
       const categories = existingCategories || [];
       let processedCount = 0;
@@ -227,29 +239,29 @@ const ImportTransactionsScreen: React.FC = () => {
 
       // Batch create missing categories
       if (categoriesToCreate.length > 0) {
-        const categoryInserts = categoriesToCreate.map((name) => ({
-          name,
-          type: "expense" as const, // Default to expense, can be updated later
-          user_id: user.id,
-        }));
+        const batch = writeBatch(db);
 
-        const { error: categoryError } = await supabase
-          .from("categories")
-          .insert(categoryInserts);
+        categoriesToCreate.forEach((name) => {
+          const newCategoryRef = doc(collection(db, "categories"));
+          batch.set(newCategoryRef, {
+            name,
+            type: "expense", // Default to expense
+            user_id: user.uid,
+            created_at: new Date().toISOString(),
+          });
+        });
 
-        if (categoryError) {
-          console.error("Error creating categories:", categoryError);
-        } else {
-          categoryCount = categoriesToCreate.length;
-        }
+        await batch.commit();
+        categoryCount = categoriesToCreate.length;
       }
 
       // Refetch categories after creating new ones
-      const { data: updatedCategories } = await supabase
-        .from("categories")
-        .select("*")
-        .eq("user_id", user.id);
-      const allCategories = updatedCategories || categories;
+      const updatedQuerySnapshot = await getDocs(q);
+      const updatedCategories = updatedQuerySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as any[];
+      const allCategories = updatedCategories;
 
       // Prepare transactions for batch insert
       const transactionsToInsert: TransactionInsert[] = [];
@@ -282,7 +294,7 @@ const ImportTransactionsScreen: React.FC = () => {
               transaction_date: parsedDate.toISOString().split("T")[0],
               type: type as "income" | "expense",
               category_id: category.id,
-              user_id: user.id,
+              user_id: user.uid,
             });
             processedCount++;
           } else {
@@ -295,23 +307,27 @@ const ImportTransactionsScreen: React.FC = () => {
 
       // Batch insert transactions
       if (transactionsToInsert.length > 0) {
-        const { error: transactionError } = await supabase
-          .from("transactions")
-          .insert(transactionsToInsert);
+        // Firestore batches are limited to 500 operations
+        const batchSize = 500;
+        for (let i = 0; i < transactionsToInsert.length; i += batchSize) {
+          const batch = writeBatch(db);
+          const chunk = transactionsToInsert.slice(i, i + batchSize);
 
-        if (transactionError) {
-          console.error("Error importing transactions:", transactionError);
-          toast.error(
-            "Import failed. Please check your CSV format and try again.",
-            { id: toastId, duration: 5000 }
-          );
-          return;
+          chunk.forEach((transaction) => {
+            const newTransactionRef = doc(collection(db, "transactions"));
+            batch.set(newTransactionRef, {
+              ...transaction,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            });
+          });
+
+          await batch.commit();
         }
       }
 
       // Refetch data to update the UI
-      await refetchTransactions();
-      await refetchCategories();
+      // No need to manually refetch with real-time listeners, but keeping for consistency if needed
 
       toast.success(
         `Import complete! ${processedCount} transactions added, ${categoryCount} categories created, ${skippedCount} skipped.`,

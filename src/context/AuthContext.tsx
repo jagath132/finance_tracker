@@ -5,12 +5,19 @@ import React, {
   useContext,
   useMemo,
 } from "react";
-import { supabase } from "../lib/supabase";
-import type { User, Session } from "@supabase/supabase-js";
+import { auth } from "../lib/firebase";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  User,
+  updateProfile,
+  sendEmailVerification,
+} from "firebase/auth";
 
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
   loading: boolean;
   needsEmailConfirmation: boolean;
   emailConfirmed: boolean;
@@ -36,178 +43,57 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  session: null,
   loading: true,
   needsEmailConfirmation: false,
   emailConfirmed: false,
   login: async () => ({ success: false }),
   register: async () => ({ success: false }),
-  logout: async () => {},
+  logout: async () => { },
   resendConfirmationEmail: async () => ({ success: false }),
-  handleEmailConfirmation: () => {},
+  handleEmailConfirmation: () => { },
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [needsEmailConfirmation, setNeedsEmailConfirmation] = useState(false);
   const [emailConfirmed, setEmailConfirmed] = useState(false);
 
   useEffect(() => {
-    const getSession = async () => {
-      try {
-        const {
-          data: { session },
-          error,
-        } = await supabase.auth.getSession();
-
-        if (error) {
-          console.error("Session error:", error);
-          setUser(null);
-          setSession(null);
-        } else if (session) {
-          setUser(session.user);
-          setSession(session);
-        } else {
-          setUser(null);
-          setSession(null);
-        }
-      } catch (error) {
-        console.error("Failed to get session:", error);
-        setUser(null);
-        setSession(null);
-      }
-
-      setLoading(false);
-    };
-
-    getSession();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state change:", event, {
-        session: !!session,
-        user: session?.user?.email,
-      });
-
-      if (event === "SIGNED_IN" && session) {
-        console.log("User signed in, navigating to dashboard");
-        setUser(session.user);
-        setSession(session);
-        setNeedsEmailConfirmation(false);
-        setEmailConfirmed(true);
-        // Navigate to dashboard after successful login
-        if (
-          typeof window !== "undefined" &&
-          window.location.pathname === "/login"
-        ) {
-          window.location.href = "/dashboard";
-        }
-      } else if (event === "SIGNED_OUT") {
-        console.log("User signed out");
-        setUser(null);
-        setSession(null);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        setNeedsEmailConfirmation(!currentUser.emailVerified);
+        setEmailConfirmed(currentUser.emailVerified);
+      } else {
         setNeedsEmailConfirmation(false);
         setEmailConfirmed(false);
-      } else if (event === "USER_UPDATED" && session) {
-        console.log("User updated");
-        setUser(session.user);
-        setSession(session);
-        setNeedsEmailConfirmation(false);
-        setEmailConfirmed(true);
-      } else if (event === "TOKEN_REFRESHED" && session) {
-        console.log("Token refreshed");
-        setUser(session.user);
-        setSession(session);
       }
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => unsubscribe();
   }, []);
 
   const login = async (email: string, password: string) => {
     try {
-      console.log("Attempting login for:", email);
-
-      // Add timeout to prevent hanging requests
-      const loginPromise = supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Request timeout")), 30000)
-      );
-
-      const { data, error } = (await Promise.race([
-        loginPromise,
-        timeoutPromise,
-      ])) as { data: any; error: any };
-
-      console.log("Login response:", { data: !!data, error });
-
-      if (error) {
-        console.error("Login error:", error);
-        // Handle specific error cases
-        if (error.message.includes("Invalid login credentials")) {
-          return {
-            success: false,
-            error:
-              "Invalid email or password. Please check your credentials and try again.",
-          };
-        }
-        if (error.message.includes("Email not confirmed")) {
-          return {
-            success: false,
-            error:
-              "Please check your email and confirm your account before logging in.",
-          };
-        }
-        if (error.message.includes("Too many requests")) {
-          return {
-            success: false,
-            error:
-              "Too many login attempts. Please wait a few minutes and try again.",
-          };
-        }
-        return { success: false, error: error.message };
+      await signInWithEmailAndPassword(auth, email, password);
+      return { success: true };
+    } catch (error: any) {
+      console.error("Login error:", error);
+      let errorMessage = "Login failed";
+      if (error.code === "auth/invalid-credential") {
+        errorMessage = "Invalid email or password.";
+      } else if (error.code === "auth/user-not-found") {
+        errorMessage = "User not found.";
+      } else if (error.code === "auth/wrong-password") {
+        errorMessage = "Incorrect password.";
+      } else if (error.code === "auth/too-many-requests") {
+        errorMessage = "Too many attempts. Try again later.";
       }
-
-      if (data.user) {
-        console.log("Login successful for user:", data.user.email);
-        // The auth state change listener will handle setting user/session
-        return { success: true };
-      }
-
-      return { success: false, error: "Login failed" };
-    } catch (error) {
-      console.error("Login fetch error:", error);
-      // Handle network errors specifically
-      if (error instanceof Error) {
-        if (error.message === "Request timeout") {
-          return {
-            success: false,
-            error:
-              "Request timed out. Please check your internet connection and try again.",
-          };
-        }
-        if (error.name === "TypeError" && error.message.includes("fetch")) {
-          return {
-            success: false,
-            error:
-              "Network error. Please check your internet connection and try again.",
-          };
-        }
-      }
-      return {
-        success: false,
-        error: "An unexpected error occurred. Please try again.",
-      };
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -217,91 +103,71 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     password: string
   ) => {
     try {
-      console.log("Attempting registration for:", email);
-      const { data, error } = await supabase.auth.signUp({
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
         email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-        },
+        password
+      );
+
+      // Update profile with full name
+      await updateProfile(userCredential.user, {
+        displayName: fullName,
       });
 
-      console.log("Registration response:", {
-        data: !!data,
-        error,
-        session: !!data?.session,
-      });
+      // Send verification email
+      await sendEmailVerification(userCredential.user);
 
-      if (error) {
-        console.error("Registration error:", error);
-        return { success: false, error: error.message };
+      return { success: true, requiresConfirmation: true };
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      let errorMessage = "Registration failed";
+      if (error.code === "auth/email-already-in-use") {
+        errorMessage = "Email is already in use.";
+      } else if (error.code === "auth/weak-password") {
+        errorMessage = "Password should be at least 6 characters.";
+      } else {
+        errorMessage = error.message || "Registration failed";
       }
-
-      if (data.user) {
-        console.log("Registration successful for user:", data.user.email);
-        // Check if email confirmation is required
-        if (!data.session) {
-          // Email confirmation is required
-          setNeedsEmailConfirmation(true);
-          return { success: true, requiresConfirmation: true };
-        } else {
-          // User is immediately signed in (confirmation disabled)
-          // The auth state change listener will handle setting user/session
-          setNeedsEmailConfirmation(false);
-          return { success: true };
-        }
-      }
-
-      return { success: false, error: "Registration failed" };
-    } catch (error) {
-      console.error("Registration fetch error:", error);
-      return {
-        success: false,
-        error: "Network error. Please check your connection and try again.",
-      };
+      return { success: false, error: errorMessage };
     }
   };
 
   const logout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error("Logout error:", error);
-      }
-      // The auth state change listener will handle setting user/session to null
+      await signOut(auth);
     } catch (error) {
       console.error("Logout error:", error);
     }
   };
 
   const resendConfirmationEmail = async (email: string) => {
-    try {
-      const { error } = await supabase.auth.resend({
-        type: "signup",
-        email: email,
-      });
-
-      if (error) {
+    // Firebase handles this on the user object, which we need to be logged in for usually,
+    // or we use a specific API. For simplicity in this migration, we'll implement a basic version
+    // if the user is currently the currentUser.
+    if (auth.currentUser && auth.currentUser.email === email) {
+      try {
+        await sendEmailVerification(auth.currentUser);
+        return { success: true };
+      } catch (error: any) {
         return { success: false, error: error.message };
       }
-
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: "An unexpected error occurred" };
     }
+    return { success: false, error: "Must be logged in to resend verification." };
   };
 
   const handleEmailConfirmation = () => {
-    setEmailConfirmed(true);
-    setNeedsEmailConfirmation(false);
+    // In Firebase, this is usually handled by reloading the user
+    if (auth.currentUser) {
+      auth.currentUser.reload().then(() => {
+        setEmailConfirmed(auth.currentUser?.emailVerified ?? false);
+        setNeedsEmailConfirmation(!(auth.currentUser?.emailVerified ?? true));
+      });
+    }
   };
 
   const value = useMemo(
     () => ({
       user,
-      session,
       loading,
       needsEmailConfirmation,
       emailConfirmed,
@@ -311,7 +177,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       resendConfirmationEmail,
       handleEmailConfirmation,
     }),
-    [user, session, loading, needsEmailConfirmation, emailConfirmed]
+    [user, loading, needsEmailConfirmation, emailConfirmed]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

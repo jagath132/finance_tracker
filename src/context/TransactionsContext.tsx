@@ -3,14 +3,28 @@ import React, {
   useContext,
   useState,
   useEffect,
-  useCallback,
   useMemo,
 } from "react";
 import { useAuth } from "./AuthContext";
-import { supabase } from "../lib/supabase";
+import { db } from "../lib/firebase";
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  writeBatch,
+  Timestamp,
+  getDocs,
+} from "firebase/firestore";
 import type { Database } from "../types/database";
 import toast from "react-hot-toast";
 
+// Adapt Transaction type for Firestore (id is string, dates might be Timestamps)
 type Transaction = Database["public"]["Tables"]["transactions"]["Row"];
 
 interface TransactionsContextType {
@@ -54,16 +68,48 @@ export const TransactionsProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [summary, setSummary] = useState({
-    income: 0,
-    expenses: 0,
-    balance: 0,
-    incomeChange: 0,
-    expenseChange: 0,
-  });
   const [loading, setLoading] = useState(true);
 
-  const summaryMemo = useMemo(() => {
+  // Real-time listener for transactions
+  useEffect(() => {
+    if (!user) {
+      setTransactions([]);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    const q = query(
+      collection(db, "transactions"),
+      where("user_id", "==", user.uid)
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const newTransactions = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            // Convert Firestore Timestamps to strings/dates if needed
+            // Assuming transaction_date is stored as string YYYY-MM-DD
+          } as Transaction;
+        });
+        setTransactions(newTransactions);
+        setLoading(false);
+      },
+      (error) => {
+        console.error("Error fetching transactions:", error);
+        toast.error("Failed to load transactions");
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user]);
+
+  const summary = useMemo(() => {
     let income = 0;
     let expenses = 0;
 
@@ -84,62 +130,18 @@ export const TransactionsProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, [transactions]);
 
-  useEffect(() => {
-    setSummary(summaryMemo);
-  }, [summaryMemo]);
-
-  const fetchTransactions = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-
-    try {
-      const { data, error } = await supabase
-        .from("transactions")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching transactions:", error);
-        toast.error("Failed to load transactions");
-        return;
-      }
-
-      setTransactions(data || []);
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-      toast.error("Failed to load transactions");
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  useEffect(() => {
-    fetchTransactions();
-  }, [fetchTransactions]);
-
   const addTransaction = async (
     transaction: Omit<Transaction, "id" | "created_at" | "user_id">
   ) => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
-        .from("transactions")
-        .insert({
-          ...transaction,
-          user_id: user.id,
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error("Error adding transaction:", error);
-        toast.error("Failed to add transaction");
-        return;
-      }
-
-      setTransactions((prev) => [data, ...prev]);
+      await addDoc(collection(db, "transactions"), {
+        ...transaction,
+        user_id: user.uid,
+        created_at: new Date().toISOString(), // Store as ISO string for consistency
+        updated_at: new Date().toISOString(),
+      });
       toast.success("Transaction added!");
     } catch (error) {
       console.error("Error adding transaction:", error);
@@ -152,21 +154,11 @@ export const TransactionsProvider: React.FC<{ children: React.ReactNode }> = ({
     updates: Partial<Omit<Transaction, "id" | "created_at" | "user_id">>
   ) => {
     try {
-      const { data, error } = await supabase
-        .from("transactions")
-        .update(updates)
-        .eq("id", id)
-        .eq("user_id", user?.id)
-        .select()
-        .single();
-
-      if (error) {
-        console.error("Error updating transaction:", error);
-        toast.error("Failed to update transaction");
-        return;
-      }
-
-      setTransactions((prev) => prev.map((t) => (t.id === id ? data : t)));
+      const docRef = doc(db, "transactions", id);
+      await updateDoc(docRef, {
+        ...updates,
+        updated_at: new Date().toISOString(),
+      });
       toast.success("Transaction updated!");
     } catch (error) {
       console.error("Error updating transaction:", error);
@@ -176,19 +168,7 @@ export const TransactionsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const deleteTransaction = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from("transactions")
-        .delete()
-        .eq("id", id)
-        .eq("user_id", user?.id);
-
-      if (error) {
-        console.error("Error deleting transaction:", error);
-        toast.error("Failed to delete transaction");
-        return;
-      }
-
-      setTransactions((prev) => prev.filter((t) => t.id !== id));
+      await deleteDoc(doc(db, "transactions", id));
       toast.success("Transaction deleted!");
     } catch (error) {
       console.error("Error deleting transaction:", error);
@@ -200,22 +180,29 @@ export const TransactionsProvider: React.FC<{ children: React.ReactNode }> = ({
     if (!user) return;
 
     try {
-      const { error } = await supabase
-        .from("transactions")
-        .delete()
-        .eq("user_id", user.id);
+      // Firestore doesn't have a "delete collection" method for client SDKs
+      // We have to batch delete
+      const q = query(
+        collection(db, "transactions"),
+        where("user_id", "==", user.uid)
+      );
+      const snapshot = await getDocs(q);
 
-      if (error) {
-        console.error("Error deleting all transactions:", error);
-        toast.error("Failed to delete all transactions");
-        return;
-      }
+      const batch = writeBatch(db);
+      snapshot.docs.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
 
-      setTransactions([]);
+      await batch.commit();
+      toast.success("All transactions deleted!");
     } catch (error) {
       console.error("Error deleting all transactions:", error);
       toast.error("Failed to delete all transactions");
     }
+  };
+
+  const refetch = async () => {
+    // No-op since we use real-time listener
   };
 
   const value: TransactionsContextType = {
@@ -226,7 +213,7 @@ export const TransactionsProvider: React.FC<{ children: React.ReactNode }> = ({
     updateTransaction,
     deleteTransaction,
     deleteAllTransactions,
-    refetch: fetchTransactions,
+    refetch,
   };
 
   return (
