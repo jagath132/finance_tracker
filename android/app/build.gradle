@@ -16,8 +16,41 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    
+    signingConfigs {
+        release {
+            // Support for GitHub Actions (environment variables)
+            if (System.getenv('ANDROID_KEYSTORE_BASE64')) {
+                def keystoreFile = file('release.keystore')
+                if (!keystoreFile.exists()) {
+                    // Decode base64 keystore from environment variable
+                    def keystoreData = System.getenv('ANDROID_KEYSTORE_BASE64')
+                    keystoreFile.bytes = keystoreData.decodeBase64()
+                }
+                storeFile keystoreFile
+                storePassword System.getenv('ANDROID_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('ANDROID_KEY_ALIAS')
+                keyPassword System.getenv('ANDROID_KEY_PASSWORD')
+            }
+            // Support for local builds (keystore.properties)
+            else {
+                def keystorePropertiesFile = rootProject.file('keystore.properties')
+                if (keystorePropertiesFile.exists()) {
+                    def keystoreProperties = new Properties()
+                    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+                    
+                    storeFile file(keystoreProperties['storeFile'])
+                    storePassword keystoreProperties['storePassword']
+                    keyAlias keystoreProperties['keyAlias']
+                    keyPassword keystoreProperties['keyPassword']
+                }
+            }
+        }
+    }
+    
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

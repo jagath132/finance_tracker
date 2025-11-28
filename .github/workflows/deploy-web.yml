@@ -32,6 +32,12 @@ jobs:
         VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
         VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
+    - name: Prepare OTA Update
+      run: |
+        cd dist
+        zip -r bundle.zip .
+        echo "{\"version\": \"1.0.${{ github.run_number }}\", \"url\": \"https://cointail.netlify.app/bundle.zip\"}" > capgo.json
+
     - name: Deploy to Netlify (Staging)
       if: github.ref == 'refs/heads/develop'
       uses: netlify/actions/cli@master

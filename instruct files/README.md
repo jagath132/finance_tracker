@@ -1,4 +1,4 @@
-# Cointrail - Finance Tracker
+ Cointrail - Finance Tracker
 
 A modern, responsive finance tracking application built with React, TypeScript, and Capacitor for web and mobile deployment.
 
@@ -93,11 +93,6 @@ Set these in your GitHub repository secrets:
 - `NETLIFY_SITE_ID_STAGING`: Staging site ID
 - `NETLIFY_SITE_ID_PRODUCTION`: Production site ID
 
-#### Supabase
-
-- `VITE_SUPABASE_URL`: Supabase project URL
-- `VITE_SUPABASE_ANON_KEY`: Supabase anonymous key
-
 #### Android (for mobile builds)
 
 - `ANDROID_KEYSTORE_BASE64`: Base64 encoded keystore file
@@ -136,15 +131,3 @@ android/               # Android project files
 ios/                   # iOS project files (if applicable)
 .github/workflows/     # CI/CD workflows
 ```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature`
-3. Make your changes and commit: `git commit -m 'Add your feature'`
-4. Push to the branch: `git push origin feature/your-feature`
-5. Create a Pull Request
-
-## License
-
-This project is licensed under the MIT License.

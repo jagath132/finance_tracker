@@ -46,25 +46,6 @@ This guide will help you configure all the required GitHub secrets for the CI/CD
 3. In GitHub, create a new secret named `NETLIFY_SITE_ID_PRODUCTION`
 4. Paste the Site ID as the value
 
-## Step 3: Configure Supabase Secrets
-
-### VITE_SUPABASE_URL
-
-1. Go to your [Supabase Dashboard](https://app.supabase.com/)
-2. Select your project
-3. In the left sidebar, click **Settings**
-4. Click **API**
-5. Copy the **Project URL** (it looks like: `https://xxxxx.supabase.co`)
-6. In GitHub, create a new secret named `VITE_SUPABASE_URL`
-7. Paste the Project URL as the value
-
-### VITE_SUPABASE_ANON_KEY
-
-1. In the same Supabase API settings page
-2. Copy the **anon/public** key (starts with `eyJ...`)
-3. In GitHub, create a new secret named `VITE_SUPABASE_ANON_KEY`
-4. Paste the anon key as the value
-
 ## Step 4: Configure Android Keystore Secrets (For Signed APKs)
 
 ### Option 1: Generate New Keystore (Recommended)

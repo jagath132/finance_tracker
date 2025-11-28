@@ -49,10 +49,33 @@ if (typeof window !== "undefined") {
   import("./screens/TransactionsScreen");
 }
 
+import { CapacitorUpdater } from '@capgo/capacitor-updater';
+import { App as CapacitorApp } from '@capacitor/app';
+
 const AppContent: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { modalType, transaction, closeModal } = useModal();
+
+  useEffect(() => {
+    CapacitorApp.addListener('appStateChange', async (state) => {
+      if (state.isActive) {
+        // Check for updates on app resume
+        try {
+          const res = await fetch('https://cointail.netlify.app/capgo.json');
+          const data = await res.json();
+          if (data.version) {
+            await CapacitorUpdater.download({
+              url: data.url,
+              version: data.version,
+            });
+          }
+        } catch (e) {
+          console.error('Update check failed', e);
+        }
+      }
+    });
+  }, []);
 
   console.log("AppContent: Current location:", location.pathname);
 

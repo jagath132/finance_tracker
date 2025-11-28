@@ -20,6 +20,17 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
+[[headers]]
+  for = "/capgo.json"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Content-Type = "application/json"
+
+[[headers]]
+  for = "/bundle.zip"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+
 [build.processing]
   skip_processing = false  # Ensure processing is not skipped
 

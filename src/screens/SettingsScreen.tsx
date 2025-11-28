@@ -155,11 +155,10 @@ const SettingsScreen: React.FC = () => {
                   <button
                     key={t}
                     onClick={() => setTheme(t)}
-                    className={`w-full p-2 rounded-md flex justify-center items-center gap-2 capitalize text-sm transition-colors ${
-                      theme === t
-                        ? "bg-brand-green text-white"
-                        : "hover:bg-gray-200 dark:hover:bg-gray-700"
-                    }`}
+                    className={`w-full p-2 rounded-md flex justify-center items-center gap-2 capitalize text-sm transition-colors ${theme === t
+                      ? "bg-brand-green text-white"
+                      : "hover:bg-gray-200 dark:hover:bg-gray-700"
+                      }`}
                   >
                     {themeIcons[t]} {t}
                   </button>

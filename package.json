@@ -13,6 +13,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/app": "^7.1.0",
+    "@capgo/capacitor-updater": "^7.29.0",
     "@faker-js/faker": "^10.0.0",
     "axios": "^1.9.0",
     "firebase": "^12.6.0",

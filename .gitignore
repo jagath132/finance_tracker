@@ -1,2 +1,13 @@
 node_modules/
 .env
+
+# Android Keystore - NEVER commit these!
+*.keystore
+*.jks
+keystore.properties
+android/app/release.keystore
+android/keystore.properties
+
+# Build outputs
+dist/
+android/app/build/
