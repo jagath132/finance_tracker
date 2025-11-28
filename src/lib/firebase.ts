@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 const requiredEnv = [
   "VITE_FIREBASE_API_KEY",
@@ -17,7 +18,6 @@ if (missing.length) {
     "❌ Firebase configuration error – the following env vars are missing:",
     missing.join(", ")
   );
-  // You could also throw here to stop the build early.
 }
 
 // Build the config object
@@ -39,4 +39,5 @@ console.log("🔧 Firebase config loaded:", {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const storage = getStorage(app);
 export default app;

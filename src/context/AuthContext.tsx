@@ -117,6 +117,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             // Send verification email
             await sendEmailVerification(userCredential.user);
 
+            // Create user document in Firestore
+            const { db } = await import("../lib/firebase");
+            const { doc, setDoc } = await import("firebase/firestore");
+            
+            await setDoc(doc(db, "users", userCredential.user.uid), {
+                id: userCredential.user.uid,
+                email: email,
+                full_name: fullName,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            });
+
             return { success: true, requiresConfirmation: true };
         } catch (error: any) {
             console.error("Registration error:", error);
